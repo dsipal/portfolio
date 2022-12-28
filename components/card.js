@@ -4,22 +4,27 @@ import NextImage from "./image";
 
 const Card = ({ post }) => {
   return (
-    <Link href={`/post/${post.attributes.slug}`}>
-      <div className="uk-card uk-card-muted">
-        <div className="uk-card-media-top">
+
+    <div className="uk-card uk-card-muted">
+      <div className="uk-card-media-top">
+        <Link href={`/post/${post.attributes.slug}`}>
           <NextImage image={post.attributes.cover} />
-        </div>
-        <div className="uk-card-body">
-          <p id="category" className="uk-text-uppercase">
-            
-            {post.attributes.category.data.attributes.title}
-          </p>
-          <p id="title" className="uk-text-large">
-            {post.attributes.title}
-          </p>
-        </div>
+        </Link>
       </div>
-    </Link>
+      <div className="uk-card-body">
+        <p id="category" className="uk-text-uppercase">
+          <Link href={`/category/${post.attributes.category.data.attributes.slug}`}>
+            {post.attributes.category.data.attributes.title}
+          </Link>
+        </p>
+        <p id="title" className="uk-text-large">
+          <Link href={`/post/${post.attributes.slug}`}>
+            {post.attributes.title}
+          </Link>
+        </p>
+      </div>
+    </div>
+
   );
 };
 
