@@ -29,33 +29,12 @@ const Post = ({ post, categories }) => {
       >
         <h1>{post.attributes.title}</h1>
       </div>
-      {/* <div className="uk-section">
+      <div className="uk-section">
         <div className="uk-container uk-container-small">
           <ReactMarkdown children={post.attributes.content} />
           <hr className="uk-divider-small" />
           <div className="uk-grid-small uk-flex-left" data-uk-grid="true">
-            <div>
-              {post.attributes.author.data.attributes.picture && (
-                <img
-                  src={getStrapiMedia(
-                    post.attributes.author.data.attributes.picture
-                  )}
-                  alt={
-                    post.attributes.author.data.attributes.picture.data
-                      .attributes.alternativeText
-                  }
-                  style={{
-                    position: "static",
-                    borderRadius: "20%",
-                    height: 60,
-                  }}
-                />
-              )}
-            </div>
             <div className="uk-width-expand">
-              <p className="uk-margin-remove-bottom">
-                By {post.attributes.author.data.attributes.name}
-              </p>
               <p className="uk-text-meta uk-margin-remove-top">
                 <Moment format="MMM Do YYYY">
                   {post.attributes.published_at}
@@ -64,7 +43,7 @@ const Post = ({ post, categories }) => {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
     </Layout>
   );
 };
