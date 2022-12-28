@@ -9,6 +9,7 @@ const Seo = ({ seo }) => {
     ...defaultSeo,
     ...seo,
   };
+  console.log(seoWithDefaults)
   const fullSeo = {
     ...seoWithDefaults,
     // Add title suffix
@@ -40,7 +41,7 @@ const Seo = ({ seo }) => {
           <meta name="image" content={fullSeo.shareImage} />
         </>
       )}
-      {fullSeo.article && <meta property="og:type" content="article" />}
+      {fullSeo.post && <meta property="og:type" content="post" />}
       <meta name="twitter:card" content="summary_large_image" />
     </Head>
   );
