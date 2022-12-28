@@ -9,7 +9,7 @@ const Nav = ({ categories }) => {
           <ul className="uk-navbar-nav">
             <li>
               <Link href="/">
-                Strapi Blog
+                devin sipal
               </Link>
             </li>
           </ul>
@@ -17,10 +17,11 @@ const Nav = ({ categories }) => {
         <div className="uk-navbar-right">
           <ul className="uk-navbar-nav">
             {categories.map((category) => {
+              console.log(category)
               return (
                 <li key={category.id}>
                   <Link href={`/category/${category.attributes.slug}`}>
-                    {category.attributes.name}
+                    {category.attributes.title}
                   </Link>
                 </li>
               );
