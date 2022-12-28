@@ -3,9 +3,8 @@ import Link from "next/link";
 import NextImage from "./image";
 
 const Card = ({ post }) => {
-  console.log(post)
   return (
-    <Link href={`/article/${post.attributes.slug}`}>
+    <Link href={`/post/${post.attributes.slug}`}>
       <div className="uk-card uk-card-muted">
         <div className="uk-card-media-top">
           <NextImage image={post.attributes.cover} />

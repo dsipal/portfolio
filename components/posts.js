@@ -5,7 +5,6 @@ const Posts = ({ posts }) => {
   const leftPostsCount = Math.ceil(posts.length / 5);
   const leftPosts = posts.slice(0, leftPostsCount);
   const rightPosts = posts.slice(leftPostsCount, Posts.length);
-  console.log(rightPosts)
 
   return (
     <div>
