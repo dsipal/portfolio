@@ -7,7 +7,7 @@ const Image = ({ image }) => {
 
   return (
     <NextImage
-      layout="responsive"
+      //layout="responsive"
       width={width}
       height={height}
       objectFit="contain"

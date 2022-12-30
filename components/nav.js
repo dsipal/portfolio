@@ -17,7 +17,6 @@ const Nav = ({ categories }) => {
         <div className="uk-navbar-right">
           <ul className="uk-navbar-nav">
             {categories.map((category) => {
-              console.log(category)
               return (
                 <li key={category.id}>
                   <Link href={`/category/${category.attributes.slug}`}>

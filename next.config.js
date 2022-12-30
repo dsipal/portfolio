@@ -5,4 +5,5 @@ module.exports = {
     loader: "default",
     domains: ["localhost","res.cloudinary.com"],
   },
+  //basePath: process.env.BASE_PATH || '',
 };

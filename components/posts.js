@@ -4,8 +4,9 @@ import Card from "./card";
 const Posts = ({ posts }) => {
   const leftPostsCount = Math.ceil(posts.length / 5);
   const leftPosts = posts.slice(0, leftPostsCount);
-  const rightPosts = posts.slice(leftPostsCount, Posts.length);
-
+  const rightPosts = posts.slice(leftPostsCount, posts.length);
+  console.log(leftPostsCount)
+  console.log(rightPosts)
   return (
     <div>
       <div className="uk-child-width-1-2@s" data-uk-grid="true">
@@ -21,10 +22,10 @@ const Posts = ({ posts }) => {
         </div>
         <div>
           <div className="uk-child-width-1-2@m uk-grid-match" data-uk-grid>
-            {rightPosts.map((Post, i) => {
+            {rightPosts.map((post, i) => {
               return (
                 <Card
-                  Post={post}
+                  post={post}
                   key={`post__left__${post.attributes.slug}`}
                 />
               );
