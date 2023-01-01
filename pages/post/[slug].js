@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import Moment from "react-moment";
 import ReactMarkdown from "react-markdown";
 
@@ -31,7 +32,8 @@ const Post = ({ post, categories }) => {
       </div>
       <div className="uk-section">
         <div className="uk-container uk-container-small">
-          <ReactMarkdown children={post.attributes.content} />
+          
+          <ReactMarkdown children={post.attributes.content}/>
           <hr className="uk-divider-small" />
           <div className="uk-grid-small uk-flex-left" data-uk-grid="true">
             <div className="uk-width-expand">
