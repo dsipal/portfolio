@@ -10,7 +10,6 @@ const Image = ({ image }) => {
       //layout="responsive"
       width={width}
       height={height}
-      objectFit="contain"
       src={getStrapiMedia(image)}
       alt={alternativeText || ""}
     />
