@@ -1,4 +1,5 @@
 import Nav from "./nav";
+import Prism from "prismjs";
 
 const Layout = ({ children, categories, seo }) => (
   <>

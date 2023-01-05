@@ -3,16 +3,13 @@ import Link from "next/link";
 
 const Nav = ({ categories }) => {
   return (
-    <div>
-      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
-        <div className="container flex flex-wrap items-center justify-between mx-auto">
-          <div className="logo">
-              <Link href="/">
-                devin sipal
-              </Link>
-          </div>
+    <nav className="px-2 sm:px-4 py-2.5 rounded bg-gray-900">
+      <div className="container flex mx-auto justify-between">
+        <div className="logo">
+          <Link href="/">devin sipal</Link>
         </div>
-        <div className="w-full md:block md:w-auto" id="navbar-default">
+
+        <div className="w-full sm:block sm:w-auto" id="navbar-default">
           <ul className="flex list-none list-inside">
             {categories.map((category) => {
               return (
@@ -25,8 +22,10 @@ const Nav = ({ categories }) => {
             })}
           </ul>
         </div>
-      </nav>
-    </div>
+      </div>
+
+      
+    </nav>
   );
 };
 

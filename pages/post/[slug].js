@@ -1,12 +1,15 @@
 /* eslint-disable react/no-children-prop */
 import Moment from "react-moment";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from 'rehype-raw';
 
 import Seo from "../../components/seo";
 import Layout from "../../components/layout";
 
 import { fetchAPI } from "../../lib/api";
 import { getStrapiMedia } from "../../lib/media";
+
+import {CodeBlock} from "../../components/code-block.js"
 
 const Post = ({ post, categories }) => {
   const imageUrl = getStrapiMedia(post.attributes.cover);
@@ -23,28 +26,24 @@ const Post = ({ post, categories }) => {
       <Seo seo={seo} />
       <div
         id="banner"
-        className="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-cover uk-light uk-padding uk-margin"
+        className="hero"
         data-src={imageUrl}
         data-srcset={imageUrl}
         data-uk-img
       >
-        <h1>{post.attributes.title}</h1>
+        <h1 className="text-center text-5xl text-white font-bold drop-shadow-lg pt-5">{post.attributes.title}</h1>
       </div>
-      <div className="uk-section">
-        <div className="uk-container uk-container-small">
-          
-          <ReactMarkdown children={post.attributes.content}/>
-          <hr className="uk-divider-small" />
-          <div className="uk-grid-small uk-flex-left" data-uk-grid="true">
-            <div className="uk-width-expand">
-              <p className="uk-text-meta uk-margin-remove-top">
-                <Moment format="MMM Do YYYY">
-                  {post.attributes.published_at}
-                </Moment>
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="container m-auto">
+        <ReactMarkdown 
+        rehypePlugins={[rehypeRaw]}
+        components={CodeBlock}
+        escapeHtml={false}
+        children={post.attributes.content}
+        />
+        <hr className="" />
+        <p className="">
+          <Moment format="MMM Do YYYY">{post.attributes.published_at}</Moment>
+        </p>
       </div>
     </Layout>
   );
