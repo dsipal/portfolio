@@ -1,10 +1,7 @@
-/** @type {import('next').NextConfig} */
+const path = require('path')
 module.exports = {
-  reactStrictMode: true,
-  images: {
-    loader: "default",
-    domains: ["localhost","res.cloudinary.com"],
-    unoptimized: true,
-  },
-  //basePath: process.env.BASE_PATH || '',
-};
+	trailingSlash: true,
+	sassOptions: {
+		includePaths: [path.join(__dirname, 'styles')]
+	}
+}

@@ -13,10 +13,10 @@ const Nav = ({ categories }) => {
           </div>
         </div>
         <div className="w-full md:block md:w-auto" id="navbar-default">
-          <ul className="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-500">
+          <ul className="flex list-none list-inside">
             {categories.map((category) => {
               return (
-                <li key={category.id}>
+                <li key={category.id} className="mr-6">
                   <Link href={`/category/${category.attributes.slug}`}>
                     {category.attributes.title}
                   </Link>
