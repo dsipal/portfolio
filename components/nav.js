@@ -4,18 +4,16 @@ import Link from "next/link";
 const Nav = ({ categories }) => {
   return (
     <div>
-      <nav className="uk-navbar-container" data-uk-navbar>
-        <div className="uk-navbar-left">
-          <ul className="uk-navbar-nav">
-            <li>
+      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
+        <div className="container flex flex-wrap items-center justify-between mx-auto">
+          <div className="logo">
               <Link href="/">
                 devin sipal
               </Link>
-            </li>
-          </ul>
+          </div>
         </div>
-        <div className="uk-navbar-right">
-          <ul className="uk-navbar-nav">
+        <div className="w-full md:block md:w-auto" id="navbar-default">
+          <ul className="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-500">
             {categories.map((category) => {
               return (
                 <li key={category.id}>

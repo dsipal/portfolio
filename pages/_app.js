@@ -3,6 +3,7 @@ import Head from "next/head";
 import { createContext } from "react";
 import { fetchAPI } from "../lib/api";
 import { getStrapiMedia } from "../lib/media";
+import styles from '/styles/globals.scss'
 
 // Store Strapi Global object in context
 export const GlobalContext = createContext({});
