@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    background-color: #1c1c27;
+    color: #fffdff;
+}
+
+a{
+    color: #6798ff;
+    text-decoration: none;
+    &:visited{
+        color: #feed73
+    }
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
+.card{
+    background-color: #28293d;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 5px;
+}
