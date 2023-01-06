@@ -7,11 +7,7 @@ import { fetchAPI } from "../lib/api";
 const Home = ({ posts, categories}) => {
   return (
     <Layout categories={categories}>
-      <div className="uk-section">
-        <div className="uk-container uk-container-large">
-          <Posts posts={posts} />
-        </div>
-      </div>
+        <Posts posts={posts} />
     </Layout>
   );
 };

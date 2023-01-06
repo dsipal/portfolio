@@ -3,7 +3,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 class MyDocument extends Document {
   render() {
     return (
-      <Html>
+      <Html className="dark">
         <Head>
           {/* eslint-disable-next-line */}
           <link
@@ -19,7 +19,7 @@ class MyDocument extends Document {
             src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.2.0/js/uikit.js"
           />
         </Head>
-        <body style={{ display: "block" }}>
+        <body className="bg-white dark:bg-gray-900 display-block">
           <Main />
           <NextScript />
         </body>

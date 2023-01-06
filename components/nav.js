@@ -1,11 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import Switch from "../components/darkSwitch"
 
 const Nav = ({ categories }) => {
   return (
     <nav className="px-2 sm:px-4 py-2.5 rounded bg-gray-900">
       <div className="container flex mx-auto justify-between">
         <div className="logo">
+          <Switch />
           <Link href="/">devin sipal</Link>
         </div>
 
