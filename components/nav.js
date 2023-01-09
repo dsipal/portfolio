@@ -10,7 +10,7 @@ const Nav = ({ categories }) => {
           <Link href="/" className="text-black dark:text-white">devin sipal</Link>
         </div>
 
-        <div className="sm:w-auto" id="navbar-default">
+        <div className="w-auto">
           <ul className="inline-flex list-none list-inside">
             {categories.map((category) => {
               return (
