@@ -13,12 +13,10 @@ const Category = ({ category, categories }) => {
   return (
     <Layout categories={categories.data}>
       <Seo seo={seo} />
-      <div className="uk-section">
-        <div className="uk-container uk-container-large">
-          <h1>{category.attributes.title}</h1>
-          <Posts posts={category.attributes.posts.data} />
-        </div>
+      <div className="justify-center align-center text-center mb-10">
+        <h1 className="category-header text-7xl">{category.attributes.title}</h1>
       </div>
+      <Posts posts={category.attributes.posts.data} />
     </Layout>
   );
 };
