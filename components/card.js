@@ -5,7 +5,7 @@ import Moment from 'react-moment';
 
 const Card = ({ post }) => {
   return (
-    <article className="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+    <article className="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 mt-5">
       <div className="flex justify-between items-center mb-5 text-gray-500">
         <Link
           href={`/category/${post.attributes.category.data.attributes.slug}`}

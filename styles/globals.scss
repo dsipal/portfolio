@@ -2,45 +2,13 @@
 @import "~tailwindcss/components";
 @import "~tailwindcss/utilities";
 
+
+nav { 
+    flex-flow: row wrap;
+}
 body{
     background-color: #1c1c27;
     color: #fffdff;
-}
-
-// a{
-//     color: #6798ff;
-//     text-decoration: none;
-//     &:visited{
-//         color: #feed73
-//     }
-//     &:hover{
-//         text-decoration: underline;
-//     }
-// }
-
-.card{
-    background-color: #28293d;
-    padding: 20px;
-    border-radius: 5px;
-    max-width: 700px;
-    h3{
-        a{
-            color:#feed73;
-        }
-        
-    }
-}
-
-nav{
-    a{
-        color:#fffdff;
-        font-size: 1rem;
-    }
-    .logo{
-        a{
-            color: #feed73;
-        }
-    }
 }
 
 .hero{
