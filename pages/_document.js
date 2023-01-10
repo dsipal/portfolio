@@ -6,18 +6,6 @@ class MyDocument extends Document {
       <Html className="dark">
         <Head>
           {/* eslint-disable-next-line */}
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css?family=Staatliches"
-          />
-          <script
-            async
-            src="https://cdn.jsdelivr.net/npm/uikit@3.10.1/dist/js/uikit-icons.min.js"
-          />
-          <script
-            async
-            src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.2.0/js/uikit.js"
-          />
         </Head>
         <body className="bg-white dark:bg-gray-900 text-black dark:text-white display-block">
           <Main />

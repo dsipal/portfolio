@@ -9,7 +9,8 @@ import Layout from "../../components/layout";
 import { fetchAPI } from "../../lib/api";
 import { getStrapiMedia } from "../../lib/media";
 
-import {CodeBlock} from "../../components/code-block.js"
+import {CodeBlock} from "../../components/code-block.js";
+import {Hero} from "../../components/hero.js";
 
 const Post = ({ post, categories }) => {
   const imageUrl = getStrapiMedia(post.attributes.cover);
@@ -24,29 +25,27 @@ const Post = ({ post, categories }) => {
   return (
     <Layout categories={categories.data}>
       <Seo seo={seo} />
-      <div
-        id="banner"
-        className="h-[20vh] mb-10 block text-white"
-        data-src={imageUrl}
-        data-srcset={imageUrl}
-        data-img
+
+      <Hero
+        image = {imageUrl}
+        title = {post.attributes.title}
+      />
+
+      <article
+        className="p-5 m-auto [&>*>a]:text-orange-400 
+      dark:[&>*>a]:text-cyan-400 mb-10 m-auto max-w-7xl"
       >
-        <h1 className="text-center text-5xl font-bold drop-shadow-lg pt-5">
-          {post.attributes.title}
-        </h1>
-      </div>
-      <article className="p-5 m-auto [&>*>a]:text-orange-400 dark:[&>*>a]:text-cyan-400 mb-10">
         <ReactMarkdown
           rehypePlugins={[rehypeRaw]}
           components={CodeBlock}
           escapeHtml={false}
           children={post.attributes.content}
         />
+        <hr className="" />
+        <p className="text-right mr-5">
+          <Moment format="MMM Do YYYY">{post.attributes.created_at}</Moment>
+        </p>
       </article>
-      <hr className="" />
-      <p className="text-right mr-5">
-        <Moment format="MMM Do YYYY">{post.attributes.published_at}</Moment>
-      </p>
     </Layout>
   );
 };

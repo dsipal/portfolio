@@ -16,9 +16,9 @@ class Cubes extends Component {
 
     componentDidMount() {
         function onWindowResize() {
-            const width = container.offsetWidth
+          const width = container.offsetWidth;
 
-            renderer.setSize(width, width)
+          renderer.setSize(width, width);
         }
 
         function pastelColor() {
