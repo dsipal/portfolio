@@ -21,7 +21,8 @@
     "react-moment": "^1.1.2",
     "react-syntax-highlighter": "^15.5.0",
     "react-toggle-dark-mode": "^1.1.1",
-    "rehype-raw": "^6.1.1"
+    "rehype-raw": "^6.1.1",
+    "three": "^0.148.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",

@@ -26,25 +26,27 @@ const Post = ({ post, categories }) => {
       <Seo seo={seo} />
       <div
         id="banner"
-        className="hero"
+        className="h-[20vh] mb-10 block text-white"
         data-src={imageUrl}
         data-srcset={imageUrl}
-        data-uk-img
+        data-img
       >
-        <h1 className="text-center text-5xl text-white font-bold drop-shadow-lg pt-5">{post.attributes.title}</h1>
+        <h1 className="text-center text-5xl font-bold drop-shadow-lg pt-5">
+          {post.attributes.title}
+        </h1>
       </div>
-      <div className="container m-auto">
-        <ReactMarkdown 
-        rehypePlugins={[rehypeRaw]}
-        components={CodeBlock}
-        escapeHtml={false}
-        children={post.attributes.content}
+      <article className="p-5 m-auto [&>*>a]:text-orange-400 dark:[&>*>a]:text-cyan-400 mb-10">
+        <ReactMarkdown
+          rehypePlugins={[rehypeRaw]}
+          components={CodeBlock}
+          escapeHtml={false}
+          children={post.attributes.content}
         />
-        <hr className="" />
-        <p className="">
-          <Moment format="MMM Do YYYY">{post.attributes.published_at}</Moment>
-        </p>
-      </div>
+      </article>
+      <hr className="" />
+      <p className="text-right mr-5">
+        <Moment format="MMM Do YYYY">{post.attributes.published_at}</Moment>
+      </p>
     </Layout>
   );
 };

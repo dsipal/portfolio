@@ -3,14 +3,11 @@
 @import "~tailwindcss/utilities";
 
 
-nav { 
-    flex-flow: row wrap;
-}
-body{
-    background-color: #1c1c27;
-    color: #fffdff;
-}
-
-.hero{
-    height: 20vh;
+#decor {
+    height: 50vh;
+    width: 50vh;
+    display: block;
+    margin: 0 auto;
+    min-height: 25vh;
+    min-width: 25vh;
 }

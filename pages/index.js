@@ -3,11 +3,16 @@ import Posts from "../components/posts";
 import Layout from "../components/layout";
 import Seo from "../components/seo";
 import { fetchAPI } from "../lib/api";
+import Cubes from "../components/cubes";
 
 const Home = ({ posts, categories}) => {
   return (
     <Layout categories={categories}>
-        <Posts posts={posts} />
+      <div id="decor">
+        <Cubes />
+      </div>
+
+      <Posts posts={posts} />
     </Layout>
   );
 };

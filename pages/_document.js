@@ -19,7 +19,7 @@ class MyDocument extends Document {
             src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.2.0/js/uikit.js"
           />
         </Head>
-        <body className="bg-white dark:bg-gray-900 display-block">
+        <body className="bg-white dark:bg-gray-900 text-black dark:text-white display-block">
           <Main />
           <NextScript />
         </body>
