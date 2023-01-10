@@ -33,7 +33,7 @@ const Post = ({ post, categories }) => {
 
       <article
         className="p-5 m-auto [&>*>a]:text-orange-400 
-      dark:[&>*>a]:text-cyan-400 mb-10 m-auto max-w-7xl"
+      dark:[&>*>a]:text-cyan-400 mb-10 max-w-7xl"
       >
         <ReactMarkdown
           rehypePlugins={[rehypeRaw]}
