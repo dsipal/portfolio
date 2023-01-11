@@ -21,13 +21,6 @@ class Cubes extends Component {
           renderer.setSize(width, width);
         }
 
-        function pastelColor() {
-            let r = (Math.round(Math.random() * 127) + 127).toString(16)
-            let g = (Math.round(Math.random() * 127) + 127).toString(16)
-            let b = (Math.round(Math.random() * 127) + 127).toString(16)
-            return `#` + r + g + b
-        }
-
         function genCube(amount) {
             for (let i = 0; i < amount; i++) {
                 let cube = new THREE.Mesh(
@@ -44,7 +37,6 @@ class Cubes extends Component {
                 cube.rotation.x = (60 * i)
                 cube.rotation.y = (60 * i)
                 scene.add(cubes[i])
-                changed[i] = false
             }
         }
 
@@ -59,9 +51,9 @@ class Cubes extends Component {
 
             cubes.map((cube, key) => {
                 if (key % 2 == 0) {
-                    cube.rotation.y += Math.random() * (0.03 - 0.01) + 0.01
+                    cube.rotation.y += Math.random() * 0.01;
                 } else {
-                    cube.rotation.x += Math.random() * (0.03 - 0.01) + 0.01
+                    cube.rotation.x += Math.random() * (0.02 - 0.01) + 0.01;
                 }
             })
 
@@ -71,7 +63,6 @@ class Cubes extends Component {
         //threejs variables
         const cubesAmt = 3
         let cubes = []
-        let changed = []
         const container = document.getElementById(`decor`)
         const scene = new THREE.Scene()
         const renderer = new THREE.WebGLRenderer({
@@ -89,6 +80,13 @@ class Cubes extends Component {
         init()
         render()
     }
+}
+
+function pastelColor() {
+    let r = (Math.round(Math.random() * 127) + 127).toString(16)
+    let g = (Math.round(Math.random() * 127) + 127).toString(16)
+    let b = (Math.round(Math.random() * 127) + 127).toString(16)
+    return `#` + r + g + b
 }
 
 export default Cubes

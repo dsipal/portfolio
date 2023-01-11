@@ -41,7 +41,7 @@ const Post = ({ post, categories }) => {
           escapeHtml={false}
           children={post.attributes.content}
         />
-        <hr className="" />
+        <hr className="my-5 mx-2" />
         <p className="text-right mr-5">
           <Moment format="MMM Do YYYY">{post.attributes.created_at}</Moment>
         </p>
