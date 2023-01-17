@@ -4,9 +4,8 @@ import * as THREE from "three"
 class Cubes extends Component {
     render() {
         return (
-            <canvas id={`animation`} style={{
-                width: `100%`,
-                position: `relative`,
+            <canvas id={`animation`}
+            style={{
                 margin: `auto`,
             }}>
 

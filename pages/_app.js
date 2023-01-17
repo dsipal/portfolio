@@ -5,13 +5,15 @@ import { fetchAPI } from "../lib/api";
 import { getStrapiMedia } from "../lib/media";
 import styles from '/styles/globals.scss';
 import prism from '/styles/prism-onedark.css';
+import React, { useState } from 'react';
+
 
 // Store Strapi Global object in context
 export const GlobalContext = createContext({});
 
 const MyApp = ({ Component, pageProps }) => {
   const { global } = pageProps;
-
+  const [theme, setTheme] = useState('light');
   return (
     <>
       <Head>
