@@ -1,30 +1,23 @@
-import * as React from 'react';
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { DarkModeSwitch } from "react-toggle-dark-mode";
-import useDark from "../lib/useDark";
 
 export default function Switcher() {
-  var dark;
-  var initColor;
-  if (typeof window !== 'undefined') {
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)){
-      dark = true
-    } else {
-      dark = false
-    }
-  }
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true) }, []);
   
-  const [colorTheme, setTheme] = useDark();
-  const [isDarkMode, setDarkMode] = React.useState(dark);
-  const toggleDarkMode = (checked) => {
-    setTheme(colorTheme);
-    setDarkMode(checked);
-  };
+  if (!mounted) return <></>;
   return (
-      <DarkModeSwitch
-        style={{ }}
-        checked={isDarkMode}
-        onChange={toggleDarkMode}
-        size={25}
-      />
+    <DarkModeSwitch
+      style={{}}
+      className="mt-1"
+      checked={theme === "dark" ? true : false}
+      onChange={() => {
+        setTheme(theme === "dark" ? "light" : "dark");
+      }}
+      size={25}
+    />
   );
 }

@@ -3,29 +3,28 @@ import Head from "next/head";
 import { createContext } from "react";
 import { fetchAPI } from "../lib/api";
 import { getStrapiMedia } from "../lib/media";
+import React, { useState } from 'react';
+import { ThemeProvider } from "next-themes";
+
+//import stylesheets
 import styles from '/styles/globals.scss';
 import prism from '/styles/prism-onedark.css';
-import React, { useState } from 'react';
-
 
 // Store Strapi Global object in context
 export const GlobalContext = createContext({});
 
 const MyApp = ({ Component, pageProps }) => {
   const { global } = pageProps;
-  const [theme, setTheme] = useState('light');
   return (
-    <>
+    <ThemeProvider attribute="class">
+      <Component {...pageProps} />
       <Head>
         <link
           rel="shortcut icon"
           href={getStrapiMedia(global.attributes.favicon)}
         />
       </Head>
-      <GlobalContext.Provider value={global.attributes}>
-        <Component {...pageProps} />
-      </GlobalContext.Provider>
-    </>
+    </ThemeProvider>
   );
 };
 
