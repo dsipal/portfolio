@@ -17,13 +17,16 @@ const MyApp = ({ Component, pageProps }) => {
   const { global } = pageProps;
   return (
     <ThemeProvider attribute="class">
-      <Component {...pageProps} />
       <Head>
         <link
           rel="shortcut icon"
           href={getStrapiMedia(global.attributes.favicon)}
         />
       </Head>
+
+      <GlobalContext.Provider value={global.attributes}>
+        <Component {...pageProps} />
+      </GlobalContext.Provider>
     </ThemeProvider>
   );
 };
