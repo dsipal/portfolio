@@ -1,7 +1,7 @@
 import { getStrapiMedia } from "../lib/media";
 import NextImage from "next/image";
 
-const Image = ({ image }) => {
+const Image = ({ image,className }) => {
 
   const { alternativeText, width, height } = image.data.attributes;
 
@@ -10,6 +10,7 @@ const Image = ({ image }) => {
       //layout="responsive"
       width={width}
       height={height}
+      className={className}
       src={getStrapiMedia(image)}
       alt={alternativeText || ""}
     />

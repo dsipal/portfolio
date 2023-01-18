@@ -7,6 +7,7 @@ export const CodeBlock = {
     return !inline && match ? (
       <SyntaxHighlighter
         style={theme}
+        className="m-15"
         language={match[1]}
         {...props}
       >

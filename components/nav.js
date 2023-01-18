@@ -22,6 +22,9 @@ const Nav = ({ categories }) => {
               );
             })}
             <li>
+              <Link href="/about" className="mr-6">about</Link>
+            </li>
+            <li>
               <Switch />
             </li>
           </ul>

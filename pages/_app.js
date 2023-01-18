@@ -1,7 +1,9 @@
 import App from "next/app";
 import Head from "next/head";
+import Script from 'next/script';
 import { createContext } from "react";
 import { fetchAPI } from "../lib/api";
+import * as gtag from "../lib/gtag";
 import { getStrapiMedia } from "../lib/media";
 import React, { useState } from 'react';
 import { ThemeProvider } from "next-themes";
@@ -17,14 +19,33 @@ const MyApp = ({ Component, pageProps }) => {
   const { global } = pageProps;
   return (
     <ThemeProvider attribute="class">
-      <Head>
-        <link
-          rel="shortcut icon"
-          href={getStrapiMedia(global.attributes.favicon)}
-        />
-      </Head>
-
       <GlobalContext.Provider value={global.attributes}>
+        <Head>
+          <link
+            rel="shortcut icon"
+            href={getStrapiMedia(global.attributes.favicon)}
+          />
+        </Head>
+
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+        />
+        <Script
+          id="ga"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gtag.GA_TRACKING_ID}', {
+              page_path: window.location.pathname,
+            });
+          `,
+          }}
+        />
+
         <Component {...pageProps} />
       </GlobalContext.Provider>
     </ThemeProvider>
