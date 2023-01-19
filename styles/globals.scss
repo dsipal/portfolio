@@ -2,16 +2,6 @@
 @import "~tailwindcss/components";
 @import "~tailwindcss/utilities";
 
-
-$light-text-color: white;
-$dark-text-color: black;
-$bg-light: white;
-$bg-dark: gray-900;
-
-#decor {
-    display: block;
-    margin: 0 auto;
-}
 a {
     &:hover{
         color: #AAA;
