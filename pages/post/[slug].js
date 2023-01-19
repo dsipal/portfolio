@@ -26,10 +26,7 @@ const Post = ({ post, categories }) => {
     <Layout categories={categories.data}>
       <Seo seo={seo} />
 
-      <Hero
-        image = {imageUrl}
-        title = {post.attributes.title}
-      />
+      <Hero image={imageUrl} title={post.attributes.title} />
 
       <article
         className="p-5 m-auto [&>*>a]:text-orange-400 
@@ -39,8 +36,9 @@ const Post = ({ post, categories }) => {
           rehypePlugins={[rehypeRaw]}
           components={CodeBlock}
           escapeHtml={false}
-          children={post.attributes.content}
-        />
+        >
+          {post.attributes.content}
+        </ReactMarkdown>
         <hr className="my-5 mx-2" />
         <p className="text-right mr-5">
           <Moment format="MMM Do YYYY">{post.attributes.created_at}</Moment>

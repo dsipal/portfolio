@@ -8,11 +8,11 @@ import Cubes from "../components/cubes";
 const Home = ({ posts, categories}) => {
   return (
     <Layout categories={categories}>
-      <div id="decor" className="max-w-7xl">
+      <div id="decor" className="max-h-[50vh] max-w-[50vh]">
         <Cubes />
       </div>
 
-      <Posts posts={posts} />
+      <Posts posts={posts} className="mb-20" />
     </Layout>
   );
 };

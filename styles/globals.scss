@@ -3,9 +3,17 @@
 @import "~tailwindcss/utilities";
 
 
+$light-text-color: white;
+$dark-text-color: black;
+$bg-light: white;
+$bg-dark: gray-900;
+
 #decor {
-    max-height: 50vh;
-    max-width: 50vh;
     display: block;
     margin: 0 auto;
+}
+a {
+    &:hover{
+        color: #AAA;
+    }
 }
