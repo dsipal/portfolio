@@ -37,11 +37,15 @@ const About = ({ about, categories}) => {
           </ReactMarkdown>
 
           <div id="currentPosition" className="mt-3">
-            Currently a {about.attributes.currentPosition.positionTitle} with{" "}
+            <span className="text-slate-600 dark:text-slate-400">Current position: </span>{about.attributes.currentPosition.positionTitle} with{" "}
             <Link href={about.attributes.currentPosition.companyLink}>
-              {about.attributes.currentPosition.companyTitle}
+              {about.attributes.currentPosition.companyTitle}.
             </Link>
-            .
+          </div>
+
+          <div id="currentProject" className="mt-3">
+            <span className="text-slate-600 dark:text-slate-400">Current project: </span>
+            {about.attributes.currentlyWorkingOn}
           </div>
 
           <ul className="list-none mt-5 [&>*]:inline-block space-x-5">
@@ -64,20 +68,26 @@ const About = ({ about, categories}) => {
         </div>
       </div>
 
-      <div id="skills" className="max-w-5xl m-auto text-center">
-        <h1 className="text-5xl bg-black text-white dark:bg-white dark:text-black p-5 my-5">Skills</h1>
-        <ul id="skillsList" className="list-none">
+      <div id="skills" className="max-w-5xl m-auto text-center p-4">
+        <h1 className="text-5xl bg-black text-white 
+        dark:bg-white dark:text-black p-5 mt-5
+        rounded-t-3xl">Skills</h1>
+        <ul id="skillsList" className="list-none outline outline-1 mx-[1px] mb-0">
           {Object.entries(about.attributes.skills).map((skill) => {
             console.log(skill);
-
             return (
               <li className="mb-4" key={skill[0]}>
-                <h1 className="text-3xl inline-block mb-2">{skill[0]}</h1>
-                <p className="text-xl">{skill[1]}</p>
+                <h1 className="text-3xl inline-block mt-5 mb-3 font-bold">{skill[0]}</h1>
+                <p className="text-xl mb-5">{skill[1]}</p>
+                <hr />
               </li>
+              
             );
           })}
         </ul>
+        <div className="h-12 bg-black dark:bg-white block mt-[-15px] rounded-b-xl">
+
+        </div>
       </div>
     </Layout>
   );
@@ -89,7 +99,8 @@ export async function getStaticProps() {
     fetchAPI("/about", { populate: {
       image: "*",
       currentPosition: "*",
-      skills: "*"
+      skills: "*",
+      currentlyWorkingOn: "*"
     } }),
     fetchAPI("/categories", {}),
   ]);
