@@ -17,14 +17,14 @@ const Card = ({ post }) => {
       </div>
       <h3
         id="title"
-        className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+        className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white font-sans"
       >
         <Link href={`/post/${post.attributes.slug}`}>
           {post.attributes.title}
         </Link>
       </h3>
 
-      <p className="mb-5 font-light text-gray-500 dark:text-gray-400">
+      <p className="mb-5 font-light text-gray-500 dark:text-gray-400 font-body">
         {post.attributes.description}
       </p>
     </article>

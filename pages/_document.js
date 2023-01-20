@@ -7,7 +7,7 @@ class MyDocument extends Document {
     return (
       <Html className="dark">
         <Head>
-          {/* eslint-disable-next-line */}
+
         </Head>
         <body className="bg-white dark:bg-gray-900 text-black dark:text-white transition-all ease-in-out">
           <Main />

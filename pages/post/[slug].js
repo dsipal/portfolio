@@ -30,7 +30,7 @@ const Post = ({ post, categories }) => {
 
       <article
         className="p-5 m-auto [&>*>a]:text-orange-400 
-      dark:[&>*>a]:text-cyan-400 mb-10 max-w-7xl"
+      dark:[&>*>a]:text-cyan-400 mb-10 max-w-5xl font-body"
       >
         <ReactMarkdown
           rehypePlugins={[rehypeRaw]}
@@ -39,8 +39,7 @@ const Post = ({ post, categories }) => {
         >
           {post.attributes.content}
         </ReactMarkdown>
-        <hr className="my-5 mx-2" />
-        <p className="text-right mr-5">
+        <p className="text-right mr-5 mt-5 overline">
           <Moment format="MMM Do YYYY">{post.attributes.created_at}</Moment>
         </p>
       </article>

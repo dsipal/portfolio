@@ -5,14 +5,17 @@ export const CodeBlock = {
   code({ node, inline, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className || '');
     return !inline && match ? (
-      <SyntaxHighlighter
+
+      <div className="my-5 font-mono">
+        <SyntaxHighlighter
         style={theme}
-        className="m-15"
         language={match[1]}
         {...props}
       >
         {String(children).replace(/\n$/, '')}
       </SyntaxHighlighter>
+      </div>
+      
     ) : (
       <code className={className} {...props}>
         {children}
