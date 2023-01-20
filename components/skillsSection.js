@@ -1,18 +1,19 @@
+import NextImage from "./image";
+
 const SkillsSection = ({skills}) => {
     return(
         <div id="skills" className="max-w-3xl m-auto p-5">
-        <h1 className="text-5xl bg-black text-white 
-        dark:bg-white dark:text-black p-5 mt-5
-        rounded-t-3xl text-center">What I can do for you</h1>
-        <ul id="skillsList" className="list-none outline outline-1 mx-[1px] mb-0">
-          {Object.entries(skills).map((skill) => {
+        <h1 className="text-5xl text-black dark:text-white p-5 mt-5
+        rounded-t-3xl text-center">My skills include:</h1>
+        <ul id="skillsList" className="list-none mx-[1px] mb-0">
+          {skills.map((skill) => {
             return (
-              <li className="mb-4 p-2" key={skill[0]}>
+              <li className="mb-4 p-2" key={skill.id}>
+                <NextImage className="h-24 fill-white" image={skill.icon} />
                 <h1 className="text-3xl inline-block ml-5 mt-5 mb-3 
-                font-bold underline text-left">{skill[0]}:</h1>
-                <p className="text-xl mb-5 text-center">{skill[1]}</p>
+                font-bold underline text-left">{skill.name}:</h1>
+                <p className="text-xl mb-5 text-center">{skill.description}</p>
               </li>
-              
             );
           })}
         </ul>
