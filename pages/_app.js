@@ -18,7 +18,7 @@ export const GlobalContext = createContext({});
 const MyApp = ({ Component, pageProps }) => {
   const { global } = pageProps;
   return (
-    <ThemeProvider attribute="class">
+    <ThemeProvider defaultTheme="dark" attribute="class" themes={["dark", "light"]}>
       <GlobalContext.Provider value={global.attributes}>
         <Head>
           <link
