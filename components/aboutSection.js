@@ -31,7 +31,7 @@ const AboutSection = ({about}) => {
             {about.attributes.body}
           </ReactMarkdown>
 
-          {/* <div id="currentPosition" className="mt-3">
+          <div id="currentPosition" className="mt-3">
             <span className="text-slate-600 dark:text-slate-400">Current position: </span>{about.attributes.currentPosition.positionTitle} with{" "}
             <Link href={about.attributes.currentPosition.companyLink}>
               {about.attributes.currentPosition.companyTitle}.
@@ -41,7 +41,7 @@ const AboutSection = ({about}) => {
           <div id="currentProject" className="mt-3">
             <span className="text-slate-600 dark:text-slate-400">Current project: </span>
             {about.attributes.currentlyWorkingOn}
-          </div> */}
+          </div> 
 
           <ul className="list-none mt-5 [&>*]:inline-block space-x-5">
             <li>

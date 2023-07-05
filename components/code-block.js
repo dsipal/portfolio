@@ -10,10 +10,9 @@ export const CodeBlock = {
         <SyntaxHighlighter
         style={theme}
         language={match[1]}
-        {...props}
-      >
-        {String(children).replace(/\n$/, '')}
-      </SyntaxHighlighter>
+        {...props}>
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
       </div>
       
     ) : (
