@@ -41,6 +41,7 @@ export async function getStaticProps({ params }) {
     populate: {
       posts: {
         populate: "*",
+        sort: "published_date:DESC",
       },
     },
   });
