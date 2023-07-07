@@ -6,8 +6,13 @@ import { fetchAPI } from "../lib/api";
 import Cubes from "../components/cubes";
 
 const Home = ({ posts, categories}) => {
+  //TODO: set this up to get pageTitle from strapi somehow.
+  const seo = {
+    pageTitle: "home"
+  }
   return (
     <Layout categories={categories}>
+      <Seo seo={seo}/>
       <div id="decor" className="max-h-[50vh] max-w-[50vh] mx-auto display-block">
         <Cubes />
       </div>

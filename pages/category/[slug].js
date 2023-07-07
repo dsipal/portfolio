@@ -6,7 +6,7 @@ import { fetchAPI } from "../../lib/api";
 
 const Category = ({ category, categories }) => {
   const seo = {
-    metaTitle: category.attributes.title,
+    pageTitle: category.attributes.title,
     metaDescription: `All ${category.attributes.title} posts`,
   };
 

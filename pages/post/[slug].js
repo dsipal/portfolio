@@ -14,9 +14,8 @@ import {Hero} from "../../components/hero.js";
 
 const Post = ({ post, categories }) => {
   const imageUrl = getStrapiMedia(post.attributes.postHero);
-  //const imageUrl = global.postHero
   const seo = {
-    metaTitle: post.attributes.title,
+    pageTitle: post.attributes.title,
     metaDescription: post.attributes.description,
     shareImage: post.attributes.cover,
     post: true,
@@ -67,7 +66,6 @@ export async function getStaticProps({ params }) {
     populate: ["cover", "category", "postHero"],
   });
   const categoriesRes = await fetchAPI("/categories");
-
   return {
     props: { post: postsRes.data[0], categories: categoriesRes},
     revalidate: 1,
