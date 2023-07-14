@@ -15,9 +15,6 @@ import prism from '/styles/prism-onedark.css';
 // Store Strapi Global object in context
 export const GlobalContext = createContext({});
 
-//GA env var
-const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;
-
 const MyApp = ({ Component, pageProps }) => {
   const { global } = pageProps;
   return (
@@ -29,17 +26,25 @@ const MyApp = ({ Component, pageProps }) => {
             href={getStrapiMedia(global.attributes.favicon)}
           />
         </Head>
-        <Script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}></Script>
-        <Script id="GA">
-          {
-          `
+
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+        />
+        <Script
+          id="ga"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_TRACKING_ID}');
-          `
-          }
-        </Script>
+            gtag('config', '${gtag.GA_TRACKING_ID}', {
+              page_path: window.location.pathname,
+            });
+          `,
+          }}
+        />
 
         <Component {...pageProps} />
       </GlobalContext.Provider>
