@@ -1,7 +1,7 @@
 import Link from "next/link"
 import NextImage from "./image";
 import { FaNodeJs,FaReact,FaDatabase,FaSass } from 'react-icons/fa';
-import { SiAdobephotoshop, SiAdobeillustrator, SiAdobeaftereffects } from 'react-icons/si'
+import { FaPaintBrush, FaPenNib, FaFilm } from 'react-icons/fa'
 import dynamic from 'next/dynamic'
 
 const TechSection = ({tech}) => {
@@ -40,11 +40,11 @@ const getIcon = (iconName) => {
         case 'FaSass':
             return(<FaSass />)
         case 'SiAdobephotoshop':
-            return(<SiAdobephotoshop />)
+            return(<FaPaintBrush />)
         case 'SiAdobeillustrator':
-            return(<SiAdobeillustrator />)
+            return(<FaPenNib />)
         case 'SiAdobeaftereffects':
-            return(<SiAdobeaftereffects> </SiAdobeaftereffects>)
+            return(<FaFilm />)
         
     }
 }
