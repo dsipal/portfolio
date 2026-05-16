@@ -9,8 +9,8 @@ import React, { useState } from 'react';
 import { ThemeProvider } from "next-themes";
 
 //import stylesheets
-import styles from '/styles/globals.scss';
-import prism from '/styles/prism-onedark.css';
+import '/styles/globals.css';
+import '/styles/prism-onedark.css';
 
 // Store Strapi Global object in context
 export const GlobalContext = createContext({});
