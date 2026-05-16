@@ -8,6 +8,10 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines" : { 
+    "npm" : ">24.0.0",
+    "node" : ">=24.0.0"
+  },
   "dependencies": {
     "@next/font": "13.1.1",
     "eslint": "^8.7.0",
