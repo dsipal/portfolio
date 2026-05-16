@@ -1,0 +1,82 @@
+name: portfolio
+
+networks:
+  traefik_network:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik}
+  internal:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-strapi}
+      POSTGRES_USER: ${POSTGRES_USER:-strapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-strapi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  strapi:
+    build:
+      context: ../strapi-cms
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 1337
+      PUBLIC_URL: https://${STRAPI_DOMAIN}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-strapi}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-strapi}
+      APP_KEYS: ${STRAPI_APP_KEYS}
+      ADMIN_JWT_SECRET: ${STRAPI_ADMIN_JWT_SECRET}
+      API_TOKEN_SALT: ${STRAPI_API_TOKEN_SALT}
+      TRANSFER_TOKEN_SALT: ${STRAPI_TRANSFER_TOKEN_SALT}
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
+      CLOUDINARY_KEY: ${CLOUDINARY_KEY}
+      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+    networks:
+      - traefik_network
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.strapi.rule=Host(`${STRAPI_DOMAIN}`)"
+      - "traefik.http.routers.strapi.entrypoints=websecure"
+      - "traefik.http.routers.strapi.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.services.strapi.loadbalancer.server.port=1337"
+
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_STRAPI_API_URL: https://${STRAPI_DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      - strapi
+    environment:
+      STRAPI_INTERNAL_URL: http://strapi:1337
+      GA_TRACKING_ID: ${GA_TRACKING_ID}
+    networks:
+      - traefik_network
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio.rule=Host(`${PORTFOLIO_DOMAIN}`)"
+      - "traefik.http.routers.portfolio.entrypoints=websecure"
+      - "traefik.http.routers.portfolio.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=3000"
