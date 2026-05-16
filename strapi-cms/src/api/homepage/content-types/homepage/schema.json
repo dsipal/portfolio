@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "homepages",
+  "info": {
+    "singularName": "homepage",
+    "pluralName": "homepages",
+    "displayName": "Homepage"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "navTitle": {
+      "type": "string"
+    },
+    "seo": {
+      "type": "string"
+    },
+    "hero": {
+      "displayName": "hero",
+      "type": "component",
+      "repeatable": true,
+      "component": "ui.hero"
+    }
+  }
+}

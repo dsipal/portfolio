@@ -1,0 +1,1 @@
+This project can be connected to a render instance in order to create your own free Strapi CMS, this repo does not spin up a database as [Supabase](https://supabase.io) offers a better free tier for Postgres. The schema that this comes with is tailored to my  [Portfolio](https://github.com/dsipal/portfolio) project however it can be customized to serve any other purpose as well.

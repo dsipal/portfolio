@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_about_teches",
+  "info": {
+    "displayName": "tech",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "link": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "customField",
+      "customField": "plugin::fontawesome-strapi.icon"
+    }
+  }
+}

@@ -27,7 +27,7 @@ services:
 
   strapi:
     build:
-      context: ../strapi-cms
+      context: ./strapi-cms
       dockerfile: Dockerfile.dev
     depends_on:
       postgres:
@@ -42,7 +42,7 @@ services:
       API_TOKEN_SALT: ${STRAPI_API_TOKEN_SALT}
       TRANSFER_TOKEN_SALT: ${STRAPI_TRANSFER_TOKEN_SALT}
     volumes:
-      - ../strapi-cms:/opt/app
+      - ./strapi-cms:/opt/app
       - /opt/app/node_modules
       - strapi_uploads:/opt/app/public/uploads
     ports:

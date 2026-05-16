@@ -30,7 +30,7 @@ services:
 
   strapi:
     build:
-      context: ../strapi-cms
+      context: ./strapi-cms
       dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
