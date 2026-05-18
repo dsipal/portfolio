@@ -1,5 +1,5 @@
 import React, {useCallback,useState,useEffect,useMemo} from 'react'
-import { Grid, GridItem, Box, Searchbar, SearchForm, Button, Typography } from '@strapi/design-system'
+import { Grid, Box, Searchbar, SearchForm, Button, Typography } from '@strapi/design-system'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { fas } from '@fortawesome/free-solid-svg-icons'
@@ -92,14 +92,14 @@ const Field = ({
 
   const makeElem = ([key,icon]) => {
     return (
-      <GridItem
+      <Grid.Item
       padding={2}
       col={2}
       key={key}>
         <Box onClick={(e) => handleChange(e, icon.string)}>
               <FontAwesomeIcon icon={icon.icon} inverse/>
             </Box>
-      </GridItem>
+      </Grid.Item>
     )
   }
 
@@ -126,15 +126,15 @@ const Field = ({
       </Box>
 
       <Box height="200px" overflow="hidden" background={'neutral0'}>
-        <Grid>
+        <Grid.Root gridCols={12}>
           {iconsToDisplay.map(makeElem)}
-        </Grid>
+        </Grid.Root>
       </Box>
       <Box>
-        <Grid>
-          <GridItem><Button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button></GridItem>
-          <GridItem><Button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages || iconsToDisplay.length === 0}>Next</Button></GridItem>
-        </Grid>
+        <Grid.Root gridCols={12}>
+          <Grid.Item><Button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button></Grid.Item>
+          <Grid.Item><Button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages || iconsToDisplay.length === 0}>Next</Button></Grid.Item>
+        </Grid.Root>
       </Box>
     </>
   )
