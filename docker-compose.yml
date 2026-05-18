@@ -55,6 +55,7 @@ services:
       CLOUDINARY_NAME: ${CLOUDINARY_NAME}
       CLOUDINARY_KEY: ${CLOUDINARY_KEY}
       CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+      USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET}
     networks:
       - traefik_network
       - internal
