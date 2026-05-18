@@ -38,25 +38,29 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const matchingCategories = await fetchAPI("/categories", {
-    filters: { slug: params.slug },
-    populate: {
-      shareImage: "*",
-      posts: {
-        populate: "*",
-        sort: "published_date:DESC",
+  try {
+    const matchingCategories = await fetchAPI("/categories", {
+      filters: { slug: params.slug },
+      populate: {
+        shareImage: "*",
+        posts: {
+          populate: "*",
+          sort: "published_date:DESC",
+        },
       },
-    },
-  });
-  const allCategories = await fetchAPI("/categories");
+    });
+    const allCategories = await fetchAPI("/categories");
 
-  return {
-    props: {
-      category: matchingCategories.data[0],
-      categories: allCategories,
-    },
-    revalidate: 60,
-  };
+    return {
+      props: {
+        category: matchingCategories.data[0],
+        categories: allCategories,
+      },
+      revalidate: 60,
+    };
+  } catch {
+    return { notFound: true, revalidate: 60 };
+  }
 }
 
 export default Category;

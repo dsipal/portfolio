@@ -22,24 +22,28 @@ const About = ({ about, categories }) => {
 }
 
 export async function getStaticProps() {
-  // Run API calls in parallel
-  const [aboutRes, categoriesRes] = await Promise.all([
-    fetchAPI("/about", {
-      populate: {
-        image: "*",
-        currentPosition: "*",
-        currentlyWorkingOn: "*",
-      },
-    }),
-    fetchAPI("/categories", {}),
-  ])
+  try {
+    // Run API calls in parallel
+    const [aboutRes, categoriesRes] = await Promise.all([
+      fetchAPI("/about", {
+        populate: {
+          image: "*",
+          currentPosition: "*",
+          currentlyWorkingOn: "*",
+        },
+      }),
+      fetchAPI("/categories", {}),
+    ])
 
-  return {
-    props: {
-      about: aboutRes.data,
-      categories: categoriesRes.data,
-    },
-    revalidate: 60,
+    return {
+      props: {
+        about: aboutRes.data,
+        categories: categoriesRes.data,
+      },
+      revalidate: 60,
+    }
+  } catch {
+    return { props: { about: null, categories: [] }, revalidate: 1 }
   }
 }
 
