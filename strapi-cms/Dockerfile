@@ -5,6 +5,9 @@ RUN apk add --no-cache python3 make g++
 FROM base AS deps
 WORKDIR /opt/app
 COPY package.json yarn.lock ./
+# Workspace plugin package.json must exist before yarn install
+# so workspace dependencies are hoisted into root node_modules
+COPY src/plugins/fontawesome-strapi/package.json ./src/plugins/fontawesome-strapi/package.json
 RUN yarn install --frozen-lockfile
 
 # --- builder stage ---
@@ -13,7 +16,7 @@ WORKDIR /opt/app
 COPY --from=deps /opt/app/node_modules ./node_modules
 COPY . .
 ENV NODE_ENV=production
-RUN npm run build
+RUN yarn build
 
 # --- runner stage ---
 FROM base AS runner

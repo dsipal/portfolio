@@ -11,15 +11,15 @@
     "src/plugins/*"
   ],
   "scripts": {
-    "build": "npm run strapi build",
-    "dev": "npm run strapi develop",
-    "start": "npm run strapi start",
+    "build": "strapi build",
+    "dev": "strapi develop",
+    "start": "strapi start",
     "strapi": "strapi"
   },
   "dependencies": {
     "@strapi/plugin-users-permissions": "5.46.0",
     "@strapi/provider-upload-cloudinary": "5.46.0",
-    "@strapi/strapi": "@latest",
+    "@strapi/strapi": "5.46.0",
     "better-sqlite3": "12.10.0",
     "pg": "^8.20.0",
     "pg-connection-string": "^2.12.0",
