@@ -15,7 +15,6 @@ FROM base AS builder
 WORKDIR /opt/app
 COPY --from=deps /opt/app/node_modules ./node_modules
 COPY . .
-ENV NODE_ENV=production
 RUN yarn build
 
 # --- runner stage ---
