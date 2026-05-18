@@ -13,6 +13,7 @@ RUN yarn install --frozen-lockfile
 # --- builder stage ---
 FROM base AS builder
 WORKDIR /opt/app
+ENV NODE_ENV=production
 COPY --from=deps /opt/app/node_modules ./node_modules
 COPY . .
 RUN yarn build
@@ -20,7 +21,9 @@ RUN yarn build
 # --- runner stage ---
 FROM base AS runner
 WORKDIR /opt/app
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=1337
 COPY --from=builder /opt/app/node_modules ./node_modules
 COPY --from=builder /opt/app/.strapi ./.strapi
 COPY --from=builder /opt/app/src ./src

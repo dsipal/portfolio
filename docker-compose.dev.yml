@@ -37,10 +37,11 @@ services:
       HOST: 0.0.0.0
       PORT: 1337
       DATABASE_URL: postgresql://strapi:strapi@postgres:5432/strapi_dev
-      APP_KEYS: ${STRAPI_APP_KEYS}
-      ADMIN_JWT_SECRET: ${STRAPI_ADMIN_JWT_SECRET}
-      API_TOKEN_SALT: ${STRAPI_API_TOKEN_SALT}
-      TRANSFER_TOKEN_SALT: ${STRAPI_TRANSFER_TOKEN_SALT}
+      APP_KEYS: ${APP_KEYS}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET}
     volumes:
       - ./strapi-cms:/opt/app
       - /opt/app/node_modules
