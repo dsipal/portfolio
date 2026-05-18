@@ -22,7 +22,6 @@ FROM base AS runner
 WORKDIR /opt/app
 ENV NODE_ENV=production
 COPY --from=builder /opt/app/node_modules ./node_modules
-COPY --from=builder /opt/app/dist ./dist
 COPY --from=builder /opt/app/.strapi ./.strapi
 COPY --from=builder /opt/app/src ./src
 COPY --from=builder /opt/app/config ./config
@@ -30,4 +29,4 @@ COPY --from=builder /opt/app/public ./public
 COPY --from=builder /opt/app/package.json ./package.json
 RUN mkdir -p /opt/app/public/uploads
 EXPOSE 1337
-CMD ["npm", "run", "start"]
+CMD ["yarn", "start"]
