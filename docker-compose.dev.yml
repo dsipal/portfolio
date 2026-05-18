@@ -49,16 +49,24 @@ services:
       - "1337:1337"
     networks:
       - internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:1337/_health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   portfolio:
     build:
       context: .
       dockerfile: Dockerfile.dev
     depends_on:
-      - strapi
+      strapi:
+        condition: service_healthy
     environment:
       NEXT_PUBLIC_STRAPI_API_URL: http://localhost:1337
       STRAPI_INTERNAL_URL: http://strapi:1337
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
     volumes:
       - .:/app
       - /app/node_modules

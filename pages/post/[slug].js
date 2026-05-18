@@ -60,17 +60,22 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const postsRes = await fetchAPI("/posts", {
-    filters: {
-      slug: params.slug,
-    },
-    populate: ["cover", "category", "postHero"],
-  });
-  const categoriesRes = await fetchAPI("/categories");
-  return {
-    props: { post: postsRes.data[0], categories: categoriesRes},
-    revalidate: 60,
-  };
+  try {
+    const postsRes = await fetchAPI("/posts", {
+      filters: {
+        slug: params.slug,
+      },
+      populate: ["cover", "category", "postHero"],
+    });
+    const categoriesRes = await fetchAPI("/categories");
+    if (!postsRes.data[0]) return { notFound: true, revalidate: 60 };
+    return {
+      props: { post: postsRes.data[0], categories: categoriesRes },
+      revalidate: 60,
+    };
+  } catch {
+    return { notFound: true, revalidate: 60 };
+  }
 }
 
 export default Post;
