@@ -33,6 +33,9 @@
     "node": ">=24.0.0",
     "npm": ">=6.0.0"
   },
+  "resolutions": {
+    "jwa": "^1.4.2"
+  },
   "strapi": {
     "uuid": "5dbc738b-6a52-4a78-a46c-eed70aa61c15"
   }
