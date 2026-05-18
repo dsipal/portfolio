@@ -23,19 +23,21 @@ const Home = ({ posts, categories}) => {
 };
 
 export async function getStaticProps() {
-  // Run API calls in parallel
-  const [postsRes, categoriesRes] = await Promise.all([
-    fetchAPI("/posts", { populate: ["cover", "category"], sort: "published_date:DESC"}),
-    fetchAPI("/categories", { populate: "*" }),
-  ]);
-
-  return {
-    props: {
-      posts: postsRes.data,
-      categories: categoriesRes.data,
-    },
-    revalidate: 1,
-  };
+  try {
+    const [postsRes, categoriesRes] = await Promise.all([
+      fetchAPI("/posts", { populate: ["cover", "category"], sort: "published_date:DESC"}),
+      fetchAPI("/categories", { populate: "*" }),
+    ]);
+    return {
+      props: {
+        posts: postsRes.data,
+        categories: categoriesRes.data,
+      },
+      revalidate: 60,
+    };
+  } catch {
+    return { props: { posts: [], categories: [] }, revalidate: 1 };
+  }
 }
 
 export default Home;

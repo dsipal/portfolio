@@ -26,7 +26,20 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
-.env*.local
+.env
+.env.dev
 
 # vercel
 .vercel
+
+# strapi-cms
+strapi-cms/.env
+strapi-cms/.tmp
+strapi-cms/.cache
+strapi-cms/dist
+strapi-cms/build
+strapi-cms/exports
+strapi-cms/node_modules
+strapi-cms/public/uploads/*
+!strapi-cms/public/uploads/.gitkeep
+strapi-cms/src/plugins/fontawesome-strapi/node_modules

@@ -22,23 +22,26 @@ const Category = ({ category, categories }) => {
 };
 
 export async function getStaticPaths() {
-  const categoriesRes = await fetchAPI("/categories", { fields: ["slug"] });
-
-  return {
-    paths: categoriesRes.data.map((category) => ({
-      params: {
-        slug: category.attributes.slug,
-      },
-    })),
-    fallback: false,
-  };
+  try {
+    const categoriesRes = await fetchAPI("/categories", { fields: ["slug"] });
+    return {
+      paths: categoriesRes.data.map((category) => ({
+        params: {
+          slug: category.attributes.slug,
+        },
+      })),
+      fallback: "blocking",
+    };
+  } catch {
+    return { paths: [], fallback: "blocking" };
+  }
 }
 
 export async function getStaticProps({ params }) {
   const matchingCategories = await fetchAPI("/categories", {
     filters: { slug: params.slug },
-    populate: "shareImage",
     populate: {
+      shareImage: "*",
       posts: {
         populate: "*",
         sort: "published_date:DESC",
@@ -52,7 +55,7 @@ export async function getStaticProps({ params }) {
       category: matchingCategories.data[0],
       categories: allCategories,
     },
-    revalidate: 1,
+    revalidate: 60,
   };
 }
 

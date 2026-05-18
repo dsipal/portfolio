@@ -14,7 +14,7 @@ const Nav = ({ categories }) => {
 
         <div className="w-auto">
           <ul className="inline-flex list-none list-inside">
-            {categories.map((category) => {
+            {(categories || []).map((category) => {
               return (
                 <li key={category.id} className="mr-6 text-black dark:text-white">
                   <Link href={`/category/${category.attributes.slug}`}>

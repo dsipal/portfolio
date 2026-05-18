@@ -57,19 +57,20 @@ const MyApp = ({ Component, pageProps }) => {
 // Hopefully we can replace this with getStaticProps once this issue is fixed:
 // https://github.com/vercel/next.js/discussions/10949
 MyApp.getInitialProps = async (ctx) => {
-  // Calls page's `getInitialProps` and fills `appProps.pageProps`
   const appProps = await App.getInitialProps(ctx);
-  // Fetch global site settings from Strapi
-  const globalRes = await fetchAPI("/global", {
-    populate: {
-      favicon: "*",
-      defaultSeo: {
-        populate: "*",
+  try {
+    const globalRes = await fetchAPI("/global", {
+      populate: {
+        favicon: "*",
+        defaultSeo: {
+          populate: "*",
+        },
       },
-    },
-  });
-  // Pass the data to our page via props
-  return { ...appProps, pageProps: { global: globalRes.data } };
+    });
+    return { ...appProps, pageProps: { ...appProps.pageProps, global: globalRes.data } };
+  } catch {
+    return { ...appProps, pageProps: { ...appProps.pageProps, global: { attributes: {} } } };
+  }
 };
 
 export default MyApp;

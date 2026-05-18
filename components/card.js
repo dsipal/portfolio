@@ -1,7 +1,16 @@
 import React from "react";
 import Link from "next/link";
 import NextImage from "./image";
-import Moment from 'react-moment';
+
+function relativeDate(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const days = Math.round(diff / 86400000);
+  if (Math.abs(days) < 1) return rtf.format(-Math.round(diff / 3600000), "hour");
+  if (Math.abs(days) < 30) return rtf.format(-days, "day");
+  if (Math.abs(days) < 365) return rtf.format(-Math.round(days / 30), "month");
+  return rtf.format(-Math.round(days / 365), "year");
+}
 
 const Card = ({ post }) => {
   return (
@@ -22,12 +31,9 @@ const Card = ({ post }) => {
           >
             {post.attributes.category.data.attributes.title}
           </Link>
-          <Moment
-            fromNow
-            className="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800"
-          >
-            {post.attributes.published_date}
-          </Moment>
+          <span className="bg-primary-100 text-primary-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-primary-200 dark:text-primary-800">
+            {relativeDate(post.attributes.published_date)}
+          </span>
         </div>
         <h3
           id="title"

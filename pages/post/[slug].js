@@ -1,5 +1,3 @@
-/* eslint-disable react/no-children-prop */
-import Moment from "react-moment";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from 'rehype-raw';
 
@@ -38,7 +36,7 @@ const Post = ({ post, categories }) => {
           {post.attributes.content}
         </ReactMarkdown>
         <p className="text-right mr-5 mt-5 overline">
-          <Moment format="MMM Do YYYY">{post.attributes.published_date}</Moment>
+          {new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(post.attributes.published_date))}
         </p>
       </article>
     </Layout>
@@ -46,16 +44,19 @@ const Post = ({ post, categories }) => {
 };
 
 export async function getStaticPaths() {
-  const postsRes = await fetchAPI("/posts", { fields: ["slug"] });
-
-  return {
-    paths: postsRes.data.map((post) => ({
-      params: {
-        slug: post.attributes.slug,
-      },
-    })),
-    fallback: false,
-  };
+  try {
+    const postsRes = await fetchAPI("/posts", { fields: ["slug"] });
+    return {
+      paths: postsRes.data.map((post) => ({
+        params: {
+          slug: post.attributes.slug,
+        },
+      })),
+      fallback: "blocking",
+    };
+  } catch {
+    return { paths: [], fallback: "blocking" };
+  }
 }
 
 export async function getStaticProps({ params }) {
@@ -68,7 +69,7 @@ export async function getStaticProps({ params }) {
   const categoriesRes = await fetchAPI("/categories");
   return {
     props: { post: postsRes.data[0], categories: categoriesRes},
-    revalidate: 1,
+    revalidate: 60,
   };
 }
 

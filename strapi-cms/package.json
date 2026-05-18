@@ -19,7 +19,7 @@
   "dependencies": {
     "@strapi/plugin-users-permissions": "5.46.0",
     "@strapi/provider-upload-cloudinary": "5.46.0",
-    "@strapi/strapi": "5.46.0",
+    "@strapi/strapi": "@latest",
     "better-sqlite3": "12.10.0",
     "pg": "^8.20.0",
     "pg-connection-string": "^2.12.0",
@@ -30,7 +30,7 @@
   },
   "devDependencies": {},
   "engines": {
-    "node": ">=20.0.0 <=24.x.x",
+    "node": ">=24.0.0",
     "npm": ">=6.0.0"
   },
   "strapi": {

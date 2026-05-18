@@ -4,8 +4,8 @@ RUN apk add --no-cache python3 make g++
 # --- deps stage ---
 FROM base AS deps
 WORKDIR /opt/app
-COPY package*.json ./
-RUN npm ci
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 # --- builder stage ---
 FROM base AS builder

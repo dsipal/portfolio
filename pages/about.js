@@ -39,7 +39,7 @@ export async function getStaticProps() {
       about: aboutRes.data,
       categories: categoriesRes.data,
     },
-    revalidate: 1,
+    revalidate: 60,
   }
 }
 
