@@ -5,6 +5,7 @@ import Link from "next/link"
 import { FaGithubAlt, FaLinkedin, FaFileWord } from "react-icons/fa"
 
 const AboutSection = ({ about }) => {
+  if (!about) return null
   return (
     <div
       id="container"

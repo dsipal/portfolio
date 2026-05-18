@@ -65,12 +65,15 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_STRAPI_API_URL: https://${STRAPI_DOMAIN}
+        STRAPI_INTERNAL_URL: https://${STRAPI_DOMAIN}
+        STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+        NEXT_PUBLIC_GA_TRACKING_ID: ${GA_TRACKING_ID}
     restart: unless-stopped
     depends_on:
       - strapi
     environment:
       STRAPI_INTERNAL_URL: http://strapi:1337
-      GA_TRACKING_ID: ${GA_TRACKING_ID}
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
     networks:
       - traefik_network
       - internal
