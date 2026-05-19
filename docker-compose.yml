@@ -36,12 +36,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:1337/_health"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 300s
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -79,8 +73,7 @@ services:
         NEXT_PUBLIC_GA_TRACKING_ID: ${GA_TRACKING_ID}
     restart: unless-stopped
     depends_on:
-      strapi:
-        condition: service_healthy
+      - strapi
     environment:
       STRAPI_INTERNAL_URL: http://strapi:1337
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
