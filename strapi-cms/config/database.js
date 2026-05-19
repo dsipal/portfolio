@@ -1,14 +1,12 @@
-const path = require("path");
-
 module.exports = ({ env }) => ({
   connection: {
     client: "postgres",
     connection: {
-      connectionString: env("DATABASE_URL"),
-      ssl: {
-        rejectUnauthorized: env.bool("DATABASE_SSL_SELF", false), // For self-signed certificates
-      },
-      schema: env("DATABASE_SCHEMA", "public"),
+      host: env("POSTGRES_HOST", "localhost"),
+      port: env.int("POSTGRES_PORT", 5432),
+      database: env("POSTGRES_DB"),
+      user: env("POSTGRES_USER"),
+      password: env("POSTGRES_PASSWORD"),
     },
   },
 });
