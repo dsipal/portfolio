@@ -59,10 +59,16 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
+      # HTTPS router
       - "traefik.http.routers.strapi.rule=Host(`${STRAPI_DOMAIN}`)"
       - "traefik.http.routers.strapi.entrypoints=websecure"
       - "traefik.http.routers.strapi.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
       - "traefik.http.services.strapi.loadbalancer.server.port=1337"
+      # HTTP → HTTPS redirect
+      - "traefik.http.routers.strapi-http.rule=Host(`${STRAPI_DOMAIN}`)"
+      - "traefik.http.routers.strapi-http.entrypoints=web"
+      - "traefik.http.routers.strapi-http.middlewares=redirect-to-https"
 
   portfolio:
     build:
@@ -82,7 +88,16 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
+      # HTTPS router
       - "traefik.http.routers.portfolio.rule=Host(`${PORTFOLIO_DOMAIN}`)"
       - "traefik.http.routers.portfolio.entrypoints=websecure"
       - "traefik.http.routers.portfolio.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
       - "traefik.http.services.portfolio.loadbalancer.server.port=3000"
+      # HTTP → HTTPS redirect
+      - "traefik.http.routers.portfolio-http.rule=Host(`${PORTFOLIO_DOMAIN}`)"
+      - "traefik.http.routers.portfolio-http.entrypoints=web"
+      - "traefik.http.routers.portfolio-http.middlewares=redirect-to-https"
+      # Shared redirect middleware (only needs to be defined once, but harmless on both)
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
