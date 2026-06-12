@@ -79,7 +79,8 @@ services:
         NEXT_PUBLIC_GA_TRACKING_ID: ${GA_TRACKING_ID}
     restart: unless-stopped
     depends_on:
-      - strapi
+      strapi:
+        condition: service_healthy
     environment:
       STRAPI_INTERNAL_URL: http://strapi:1337
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
