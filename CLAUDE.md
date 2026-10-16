@@ -27,6 +27,8 @@ yarn build     # Build Strapi admin panel
 yarn start     # Start Strapi in production mode
 ```
 
+Strapi's CLI searches parent directories for a `tsconfig.json`, so in a full checkout it finds the frontend's root config and fails at "Compiling TS". Run Strapi through `docker-compose.dev.yml` (which mounts only `strapi-cms/`), or move the root `tsconfig.json` aside while running Strapi commands on the host. Docker image builds are unaffected (the build context is `strapi-cms/`).
+
 ### Docker (full stack)
 ```bash
 # Development — mounts source for hot-reload, exposes :3000 and :1337
