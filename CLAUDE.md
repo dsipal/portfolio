@@ -48,7 +48,7 @@ Copy `.env.example` to `.env`. Required variables:
 | `APP_KEYS`, `ADMIN_JWT_SECRET`, etc. | Strapi | Generate with `openssl rand -base64 32` |
 | `CLOUDINARY_*` | Strapi production | Media uploads; not needed in dev |
 
-**Important:** `NEXT_PUBLIC_*` vars must be set at Docker build time (passed as `ARG`), not just at runtime.
+**Important:** `NEXT_PUBLIC_*` vars must be set at Docker build time (passed as `ARG`), not just at runtime. In production they come from GitHub Actions repository variables.
 
 ## Architecture
 
@@ -93,4 +93,6 @@ Post `content` is stored as Markdown (Strapi richtext) and rendered with `react-
 
 ## Deployment
 
-Pushing to `main` triggers a Portainer webhook (`.github/workflows/deploy.yml`) which redeploys the Docker stack. The production stack (`docker-compose.yml`) sits behind a Traefik reverse proxy for TLS termination.
+Pushing to `main` runs `.github/workflows/deploy.yml`, which builds `portfolio-web` and `portfolio-strapi` images, pushes them to GHCR (`:latest` and `:<sha>`). Watchtower on the host detects the new `:latest` images and recreates the `strapi` and `portfolio` containers (opted in via `com.centurylinklabs.watchtower.enable=true`; `postgres` is opted out). The production stack (`docker-compose.yml`) only references images (no `build:`) and sits behind a Traefik reverse proxy for TLS termination.
+
+GitHub repo config the workflow needs: variables `NEXT_PUBLIC_STRAPI_API_URL`, `NEXT_PUBLIC_GA_TRACKING_ID`; secrets `STRAPI_API_TOKEN` (optional, for prerendering real content at build).

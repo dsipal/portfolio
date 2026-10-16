@@ -1,5 +1,9 @@
 name: portfolio
 
+# Production stack. Images are built and pushed to GHCR by
+# .github/workflows/deploy.yml; the host's Watchtower pulls new :latest images
+# and recreates the labelled containers. Nothing is built on the server.
+
 networks:
   traefik_network:
     external: true
@@ -10,79 +14,79 @@ networks:
 volumes:
   postgres_data:
 
+x-postgres-env: &postgres-env
+  POSTGRES_DB: ${POSTGRES_DB:-strapi}
+  POSTGRES_USER: ${POSTGRES_USER:-strapi}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-strapi}
-      POSTGRES_USER: ${POSTGRES_USER:-strapi}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      <<: *postgres-env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - internal
+    labels:
+      # Never auto-restart the database
+      - "com.centurylinklabs.watchtower.enable=false"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-strapi}"]
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 10s
       timeout: 5s
       retries: 5
 
   strapi:
-    build:
-      context: ./strapi-cms
-      dockerfile: Dockerfile
+    image: ${IMAGE_REGISTRY:-ghcr.io/dsipal}/portfolio-strapi:${IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:1337/_health',(r)=>process.exit(r.statusCode===204?0:1)).on('error',()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:1337/_health',(r)=>process.exit(r.statusCode===204?0:1)).on('error',()=>process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 6
-      start_period: 30s
+      start_period: 60s
     environment:
+      <<: *postgres-env
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 1337
-      PUBLIC_URL: https://${STRAPI_DOMAIN}
+      PUBLIC_URL: https://${STRAPI_DOMAIN:?STRAPI_DOMAIN is required}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      APP_KEYS: ${APP_KEYS}
-      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
-      API_TOKEN_SALT: ${API_TOKEN_SALT}
-      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      APP_KEYS: ${APP_KEYS:?APP_KEYS is required}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:?ADMIN_JWT_SECRET is required}
+      API_TOKEN_SALT: ${API_TOKEN_SALT:?API_TOKEN_SALT is required}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT:?TRANSFER_TOKEN_SALT is required}
+      USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET:?USERS_PERMISSIONS_JWT_SECRET is required}
       CLOUDINARY_NAME: ${CLOUDINARY_NAME}
       CLOUDINARY_KEY: ${CLOUDINARY_KEY}
       CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
-      USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET}
     networks:
       - traefik_network
       - internal
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
+      - "traefik.http.services.${TRAEFIK_PREFIX:-portfolio}-strapi.loadbalancer.server.port=1337"
       # HTTPS router
-      - "traefik.http.routers.strapi.rule=Host(`${STRAPI_DOMAIN}`)"
-      - "traefik.http.routers.strapi.entrypoints=websecure"
-      - "traefik.http.routers.strapi.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
-      - "traefik.http.services.strapi.loadbalancer.server.port=1337"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.rule=Host(`${STRAPI_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.service=${TRAEFIK_PREFIX:-portfolio}-strapi"
       # HTTP router (no redirect — Cloudflare tunnel connects on HTTP)
-      - "traefik.http.routers.strapi-http.rule=Host(`${STRAPI_DOMAIN}`)"
-      - "traefik.http.routers.strapi-http.entrypoints=web"
-      - "traefik.http.routers.strapi-http.service=strapi"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi-http.rule=Host(`${STRAPI_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi-http.entrypoints=${TRAEFIK_HTTP_ENTRYPOINT:-web}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi-http.service=${TRAEFIK_PREFIX:-portfolio}-strapi"
 
   portfolio:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_STRAPI_API_URL: https://${STRAPI_DOMAIN}
-        NEXT_PUBLIC_GA_TRACKING_ID: ${GA_TRACKING_ID}
+    # NEXT_PUBLIC_* values are baked into this image at build time in CI
+    image: ${IMAGE_REGISTRY:-ghcr.io/dsipal}/portfolio-web:${IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       strapi:
@@ -94,14 +98,16 @@ services:
       - traefik_network
       - internal
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
+      - "traefik.http.services.${TRAEFIK_PREFIX:-portfolio}-web.loadbalancer.server.port=3000"
       # HTTPS router
-      - "traefik.http.routers.portfolio.rule=Host(`${PORTFOLIO_DOMAIN}`)"
-      - "traefik.http.routers.portfolio.entrypoints=websecure"
-      - "traefik.http.routers.portfolio.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
-      - "traefik.http.services.portfolio.loadbalancer.server.port=3000"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web.rule=Host(`${PORTFOLIO_DOMAIN:?PORTFOLIO_DOMAIN is required}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web.service=${TRAEFIK_PREFIX:-portfolio}-web"
       # HTTP router (no redirect — Cloudflare tunnel connects on HTTP)
-      - "traefik.http.routers.portfolio-http.rule=Host(`${PORTFOLIO_DOMAIN}`)"
-      - "traefik.http.routers.portfolio-http.entrypoints=web"
-      - "traefik.http.routers.portfolio-http.service=portfolio"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web-http.rule=Host(`${PORTFOLIO_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web-http.entrypoints=${TRAEFIK_HTTP_ENTRYPOINT:-web}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-web-http.service=${TRAEFIK_PREFIX:-portfolio}-web"

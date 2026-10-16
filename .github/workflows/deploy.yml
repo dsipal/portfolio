@@ -1,12 +1,59 @@
 name: Deploy
 
+# Builds and pushes images to GHCR. Watchtower on the host picks up the new
+# :latest tags and redeploys the containers.
+
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: portfolio-strapi
+            context: ./strapi-cms
+          - image: portfolio-web
+            context: .
     steps:
-      - name: Trigger Portainer redeploy
-        run: curl -s -f -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.image }}:${{ github.sha }}
+          # Only used by portfolio-web; ignored by the Strapi Dockerfile
+          build-args: |
+            NEXT_PUBLIC_STRAPI_API_URL=${{ vars.NEXT_PUBLIC_STRAPI_API_URL }}
+            NEXT_PUBLIC_GA_TRACKING_ID=${{ vars.NEXT_PUBLIC_GA_TRACKING_ID }}
+            STRAPI_BUILD_URL=${{ vars.NEXT_PUBLIC_STRAPI_API_URL }}
+          secrets: |
+            strapi_api_token=${{ secrets.STRAPI_API_TOKEN }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+

@@ -1,9 +1,13 @@
-node_modules
+**/node_modules
 .tmp
 .cache
 dist
 .strapi
-.env
+.env*
+!.env.example
 .git
 build
+exports
 public/uploads
+Dockerfile*
+render.yaml
