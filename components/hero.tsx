@@ -54,7 +54,7 @@ export function Hero({
             className="text-5xl font-semibold tracking-tight text-balance sm:text-6xl lg:text-7xl"
           >
             Hi, I&apos;m{" "}
-            <span className="bg-gradient-to-r from-brand via-violet-400 to-sky-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-1 via-brand-2 to-brand-3 bg-clip-text text-transparent">
               {name}
             </span>
           </motion.h1>
@@ -97,12 +97,12 @@ function HeroBackground() {
     <div aria-hidden className="absolute inset-0 -z-10">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,#000_40%,transparent_100%)] bg-[size:48px_48px] opacity-60" />
       <motion.div
-        className="absolute -top-32 right-0 size-[28rem] rounded-full bg-brand/20 blur-3xl"
+        className="absolute -top-32 right-0 size-[28rem] rounded-full bg-brand-1/20 blur-3xl"
         animate={{ x: [0, -40, 0], y: [0, 30, 0] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute top-40 -left-24 size-[22rem] rounded-full bg-sky-400/10 blur-3xl"
+        className="absolute top-40 -left-24 size-[22rem] rounded-full bg-brand-3/15 blur-3xl"
         animate={{ x: [0, 40, 0], y: [0, -20, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />

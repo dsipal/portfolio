@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { getAbout, getCategories, getSearchIndex } from "@/lib/strapi";
 import { getStrapiMedia } from "@/lib/media";
 import { SITE_URL, getSiteInfo } from "@/lib/site";
+import { pastelScript } from "@/lib/pastel";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -47,6 +48,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Sets the per-visit pastel accent palette before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: pastelScript }} />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} flex min-h-dvh flex-col font-sans`}>
         <Providers>
           <a

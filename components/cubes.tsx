@@ -3,14 +3,10 @@
 import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import * as THREE from "three";
-
-const PALETTES = {
-  dark: ["#818cf8", "#a78bfa", "#38bdf8"],
-  light: ["#6366f1", "#8b5cf6", "#0ea5e9"],
-};
+import { readPastels } from "@/lib/pastel";
 
 /**
- * Three translucent, intersecting cubes that slowly rotate and lean toward
+ * Three translucent, intersecting cubes in the per-visit pastel palette that slowly rotate and lean toward
  * the pointer. Pauses when off-screen or the tab is hidden, and renders a
  * single still frame under prefers-reduced-motion.
  */
@@ -26,7 +22,7 @@ export default function Cubes() {
     if (!container || !canvas) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const palette = isDark ? PALETTES.dark : PALETTES.light;
+    const palette = readPastels();
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, canvas });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -52,15 +48,19 @@ export default function Cubes() {
       const material = new THREE.MeshStandardMaterial({
         color,
         transparent: true,
-        opacity: 0.55,
+        // Same random translucency as the original cubes
+        opacity: Math.random() * (0.95 - 0.6) + 0.6,
         roughness: 0.35,
         metalness: 0.1,
         depthWrite: false,
       });
+      // Pastel edges disappear on white, so light mode outlines in a darker shade of the same hue
+      const edgeColor = new THREE.Color(color);
+      if (!isDark) edgeColor.offsetHSL(0, 0.1, -0.3);
       const lineMaterial = new THREE.LineBasicMaterial({
-        color,
+        color: edgeColor,
         transparent: true,
-        opacity: isDark ? 0.9 : 0.7,
+        opacity: isDark ? 0.9 : 0.8,
       });
       disposables.push(material, lineMaterial);
 

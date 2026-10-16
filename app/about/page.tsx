@@ -36,7 +36,7 @@ export default async function AboutPage() {
             <div className="relative">
               <div
                 aria-hidden
-                className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-brand/30 to-sky-400/20 blur-2xl"
+                className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-1/30 to-brand-3/20 blur-2xl"
               />
               <StrapiImage
                 image={about.image}
