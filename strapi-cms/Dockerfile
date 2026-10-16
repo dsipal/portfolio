@@ -28,7 +28,11 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=1337
 COPY --from=builder --chown=node:node /opt/app ./
-RUN mkdir -p public/uploads && chown -R node:node public/uploads
+# COPY --chown doesn't apply to the WORKDIR itself, and Strapi creates
+# database/migrations (and other dirs) under it at startup
+RUN mkdir -p database/migrations public/uploads && \
+    chown node:node /opt/app && \
+    chown -R node:node database public/uploads
 USER node
 EXPOSE 1337
 # Run strapi directly (not via yarn) so SIGTERM reaches the process on redeploys
