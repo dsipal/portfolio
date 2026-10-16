@@ -43,3 +43,7 @@ strapi-cms/node_modules
 strapi-cms/public/uploads/*
 !strapi-cms/public/uploads/.gitkeep
 strapi-cms/src/plugins/fontawesome-strapi/node_modules
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

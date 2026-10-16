@@ -66,6 +66,8 @@ services:
       NEXT_PUBLIC_STRAPI_API_URL: http://localhost:1337
       STRAPI_INTERNAL_URL: http://strapi:1337
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      SITE_URL: http://localhost:3000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-dev}
       # File events don't propagate through Windows/macOS bind mounts
       WATCHPACK_POLLING: "true"
     volumes:

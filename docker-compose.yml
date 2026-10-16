@@ -94,6 +94,8 @@ services:
     environment:
       STRAPI_INTERNAL_URL: http://strapi:1337
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      SITE_URL: https://${PORTFOLIO_DOMAIN}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     networks:
       - traefik_network
       - internal
