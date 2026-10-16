@@ -1,0 +1,15 @@
+# Build context: the repository root. Source is bind-mounted by
+# docker-compose.dev.yml; this image only provides dependencies.
+FROM node:24-alpine
+RUN apk add --no-cache python3 make g++
+ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable
+WORKDIR /opt/app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json apps/web/
+COPY apps/cms/package.json apps/cms/
+COPY apps/cms/src/plugins/fontawesome-strapi/package.json apps/cms/src/plugins/fontawesome-strapi/
+RUN pnpm install --frozen-lockfile --filter cms...
+WORKDIR /opt/app/apps/cms
+EXPOSE 1337
+CMD ["/opt/app/node_modules/.bin/strapi", "develop"]

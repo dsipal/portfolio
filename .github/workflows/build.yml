@@ -1,15 +1,18 @@
 name: Build images
 
-# Builds and pushes images to GHCR. Watchtower on the host picks up the new
-# :latest tags and redeploys the containers.
+# Verifies every push and PR (lint, types, unit tests, e2e against mock
+# Strapi content), then builds both images. Only pushes to main publish the
+# images to GHCR; Watchtower on the host then picks up the new :latest tags and
+# redeploys the containers. Elsewhere the image build just has to succeed.
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
+  pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: build-images
+  group: build-images-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -20,21 +23,71 @@ env:
   REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      STRAPI_INTERNAL_URL: http://localhost:1338
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile --filter web...
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build against mock Strapi
+        working-directory: apps/web
+        run: |
+          node test/mock-strapi.mjs 1338 &
+          pnpm exec next build
+
+      - name: Install Playwright browser
+        working-directory: apps/web
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apps/web/test-results/
+          retention-days: 7
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         include:
           - image: portfolio-strapi
-            context: ./strapi-cms
+            app: cms
           - image: portfolio-web
-            context: .
+            app: web
     steps:
       - uses: actions/checkout@v4
 
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
+        if: env.PUBLISH == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -42,8 +95,10 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.context }}
-          push: true
+          # Both images build from the workspace root (one pnpm lockfile)
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: ${{ env.PUBLISH == 'true' }}
           tags: |
             ${{ env.REGISTRY }}/${{ matrix.image }}:latest
             ${{ env.REGISTRY }}/${{ matrix.image }}:${{ github.sha }}
@@ -55,5 +110,4 @@ jobs:
           secrets: |
             strapi_api_token=${{ secrets.STRAPI_API_TOKEN }}
           cache-from: type=gha,scope=${{ matrix.image }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
-
+          cache-to: ${{ env.PUBLISH == 'true' && format('type=gha,mode=max,scope={0}', matrix.image) || '' }}

@@ -1,0 +1,33 @@
+# Strapi's admin build expects a flat node_modules (as npm/yarn produce)
+nodeLinker: hoisted
+
+packages:
+  - apps/web
+  - apps/cms
+  - apps/cms/src/plugins/*
+
+# Patched versions for vulnerable transitive dependencies (mostly pinned
+# inside Strapi's packages). Each override only applies below the fixed
+# version, and only for patch/minor bumps; major jumps (nodemailer,
+# stream-json) are left to upstream Strapi releases.
+overrides:
+  axios@<1.20.0: ^1.20.0
+  brace-expansion@<1.1.12: ^1.1.12
+  brace-expansion@>=5.0.0 <5.0.12: ^5.0.12
+  browserslist@<4.28.7: ^4.28.7
+  fast-uri@<3.1.8: ^3.1.8
+  handlebars@<4.7.10: ^4.7.10
+  jwa@<1.4.2: ^1.4.2
+  markdown-it@<14.3.1: ^14.3.1
+  postcss@<8.5.23: ^8.5.23
+  postcss-selector-parser@>=7.0.0 <7.1.6: ^7.1.6
+  qs@<6.16.0: ^6.16.0
+  sanitize-html@<2.17.7: ^2.17.7
+  tar@<7.5.18: ^7.5.18
+  undici@>=6.0.0 <6.28.1: ^6.28.1
+
+# Dependencies allowed to run install scripts (pnpm blocks them by default)
+onlyBuiltDependencies:
+  - "@swc/core"
+  - esbuild
+  - unrs-resolver

@@ -27,8 +27,8 @@ services:
 
   strapi:
     build:
-      context: ./strapi-cms
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: apps/cms/Dockerfile.dev
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,9 +48,9 @@ services:
       TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
       USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET}
     volumes:
-      - ./strapi-cms:/opt/app
-      - /opt/app/node_modules
-      - strapi_uploads:/opt/app/public/uploads
+      - ./apps/cms:/opt/app/apps/cms
+      - /opt/app/apps/cms/node_modules
+      - strapi_uploads:/opt/app/apps/cms/public/uploads
     ports:
       - "1337:1337"
     networks:
@@ -59,7 +59,7 @@ services:
   portfolio:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: apps/web/Dockerfile.dev
     depends_on:
       - strapi
     environment:
@@ -71,9 +71,9 @@ services:
       # File events don't propagate through Windows/macOS bind mounts
       WATCHPACK_POLLING: "true"
     volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+      - ./apps/web:/repo/apps/web
+      - /repo/apps/web/node_modules
+      - /repo/apps/web/.next
     ports:
       - "3000:3000"
     networks:

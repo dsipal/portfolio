@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "documentId": "project-1",
+    "slug": "portfolio",
+    "summary": "A one-paragraph summary of the project, what it does and the stack.",
+    "description": null,
+    "image": null,
+    "link": "https://example.com",
+    "order": 0,
+    "title": "Portfolio",
+    "tech": ["Next.js", "Strapi", "Docker"],
+    "featured": true,
+    "repoUrl": "https://github.com/example/portfolio"
+  },
+  {
+    "id": 2,
+    "documentId": "project-2",
+    "slug": "homelab",
+    "summary": "A one-paragraph summary of the project, what it does and the stack.",
+    "description": null,
+    "image": null,
+    "link": "https://example.com",
+    "order": 1,
+    "title": "Homelab",
+    "tech": ["Proxmox", "Traefik"],
+    "featured": true,
+    "repoUrl": null
+  },
+  {
+    "id": 3,
+    "documentId": "project-3",
+    "slug": "api-service",
+    "summary": "A one-paragraph summary of the project, what it does and the stack.",
+    "description": null,
+    "image": null,
+    "link": "https://example.com",
+    "order": 2,
+    "title": "API service",
+    "tech": {
+      "0": "NestJS",
+      "1": "TypeScript",
+      "2": "Postgres"
+    },
+    "featured": true,
+    "repoUrl": null
+  },
+  {
+    "id": 4,
+    "documentId": "project-4",
+    "slug": "cli-tool",
+    "summary": "A one-paragraph summary of the project, what it does and the stack.",
+    "description": null,
+    "image": null,
+    "link": "https://example.com",
+    "order": 3,
+    "title": "CLI tool",
+    "techStack": [
+      {
+        "id": 1,
+        "name": "Go"
+      },
+      {
+        "id": 2,
+        "name": "Cobra"
+      }
+    ],
+    "tech": ["ignored"],
+    "featured": false,
+    "repoUrl": "https://github.com/example/cli"
+  }
+]

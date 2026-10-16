@@ -1,0 +1,17 @@
+{
+  "id": 1,
+  "documentId": "about",
+  "header": "Engineer who likes shipping small, sharp tools.",
+  "body": "I build things for the web.\n\nSecond paragraph.",
+  "image": null,
+  "github": "https://github.com/example",
+  "linkedIn": "https://linkedin.com/in/example",
+  "resumeUrl": null,
+  "currentlyWorkingOn": "This portfolio",
+  "currentPosition": {
+    "companyTitle": "Acme",
+    "positionTitle": "Software Engineer",
+    "since": "2024-03-01",
+    "companyLink": "https://example.com"
+  }
+}

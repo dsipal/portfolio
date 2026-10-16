@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_project_tech_items",
+  "info": {
+    "displayName": "techItem",
+    "icon": "code",
+    "description": "One technology used in a project"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
