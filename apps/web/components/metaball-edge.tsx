@@ -9,36 +9,46 @@ const GRID = 48;
 /** Where the hero's surface ends and the drips begin */
 const EDGE_Y = 44;
 
-/** Bulges that hang from the edge and sway gently: [cx %, radius px, duration s, delay s] */
-const BULGES: [number, number, number, number][] = [
-  [2, 26, 7, 0],
-  [11, 20, 6, -2],
-  [19, 30, 8, -4],
-  [30, 22, 6.5, -1],
-  [38, 28, 7.5, -5],
-  [47, 18, 6, -3],
-  [55, 30, 8.5, -2.5],
-  [64, 22, 7, -6],
-  [72, 26, 6.5, -0.5],
-  [81, 20, 7.5, -3.5],
-  [89, 30, 8, -1.5],
-  [98, 24, 6.5, -4.5],
-];
+/**
+ * The surface is a continuous wave of overlapping ellipses hanging from the
+ * edge. Widths are a percentage of the band, so neighbours always overlap by
+ * the same fraction: no near-gaps that the goo filter would pinch into spikes.
+ */
+const WAVE_STEP = 4.5; // % between ellipse centres
+const WAVE_RX = 3.2; // % half-width; > WAVE_STEP / 2 so neighbours overlap
+const WAVE_RY = [22, 16, 28, 19, 25, 17, 30, 21, 18, 26, 20, 24]; // px sag, varied so the edge looks organic
+const WAVE = Array.from({ length: Math.ceil(110 / WAVE_STEP) }, (_, i) => ({
+  cx: -5 + i * WAVE_STEP,
+  ry: WAVE_RY[i % WAVE_RY.length],
+  duration: 6 + ((i * 7) % 5),
+  delay: -((i * 1.3) % 6),
+}));
 
 /**
- * Drips: a stem that stretches down from the edge and a drop at its tip that
- * pinches off and falls: [cx %, length px, stem width px, drop radius px, duration s, delay s].
- * EDGE_Y + length + the 48px fall (drip-drop in globals.css) must stay within DRIP_BAND_HEIGHT.
+ * Drips: [cx %, length px, neck radius px, drop radius px, duration s, delay s].
+ * Each is built only from circles so every part stays round: a chain of neck
+ * circles slides down to fractions of `length` (NECK) and a drop leads them;
+ * the goo filter fuses them into a tapering drip. When the neck retracts the
+ * drop separates and falls. EDGE_Y + length + the 48px fall (drip-drop in
+ * globals.css) must stay within DRIP_BAND_HEIGHT.
  */
 const DRIPS: [number, number, number, number, number, number][] = [
-  [7, 78, 16, 11, 6.5, 0],
-  [19, 96, 20, 14, 8, -3],
-  [34, 62, 14, 10, 5.5, -1.5],
-  [43, 90, 18, 13, 7.5, -5],
-  [55, 100, 22, 15, 9, -2],
-  [68, 70, 16, 11, 6, -4],
-  [78, 94, 20, 14, 8.5, -6],
-  [92, 84, 18, 12, 7, -1],
+  [7, 78, 14, 14, 6.5, 0],
+  [19, 96, 16, 17, 8, -3],
+  [34, 62, 13, 13, 5.5, -1.5],
+  [43, 90, 15, 16, 7.5, -5],
+  [55, 100, 17, 18, 9, -2],
+  [68, 70, 14, 14, 6, -4],
+  [78, 94, 16, 17, 8.5, -6],
+  [92, 84, 15, 15, 7, -1],
+];
+
+/** Neck circles as [fraction of the drip length, radius scale]: wide at the edge, narrowing toward the drop */
+const NECK: [number, number][] = [
+  [0.2, 1.15],
+  [0.4, 1],
+  [0.6, 0.85],
+  [0.8, 0.75],
 ];
 
 function Shapes() {
@@ -46,36 +56,40 @@ function Shapes() {
     <>
       {/* The hero's surface, extending above the band so the blur never shows an edge there */}
       <rect x="-10%" y={-GRID} width="120%" height={GRID + EDGE_Y} />
-      {BULGES.map(([cx, r, duration, delay]) => (
-        <circle
-          key={`b${cx}`}
+      {WAVE.map(({ cx, ry, duration, delay }) => (
+        <ellipse
+          key={`w${cx}`}
           className="metaball drip-sway"
           cx={`${cx}%`}
           cy={EDGE_Y}
-          r={r}
+          rx={`${WAVE_RX}%`}
+          ry={ry}
           style={{ animationDuration: `${duration}s`, animationDelay: `${delay}s` }}
         />
       ))}
-      {DRIPS.map(([cx, length, width, drop, duration, delay]) => {
+      {DRIPS.map(([cx, length, neck, drop, duration, delay]) => {
         const timing = { animationDuration: `${duration}s`, animationDelay: `${delay}s` };
         return (
-          // Nested <svg> positions the drip at cx% so its shapes can be centered in px
+          // Nested <svg> positions the drip at cx% so its circles can be placed in px
           <svg key={`d${cx}`} x={`${cx}%`} overflow="visible">
-            <rect
-              className="metaball drip-stem"
-              x={-width / 2}
-              y={EDGE_Y - 8}
-              width={width}
-              height={length}
-              rx={width / 2}
-              style={timing}
-            />
+            {/* Rounded swell the drip grows out of, so it never meets the surface at a sharp angle */}
+            <circle className="metaball drip-sway" cx={0} cy={EDGE_Y} r={neck * 1.8} style={timing} />
+            {NECK.map(([reach, scale]) => (
+              <circle
+                key={reach}
+                className="metaball drip-neck"
+                cx={0}
+                cy={EDGE_Y}
+                r={neck * scale}
+                style={{ ...timing, ["--reach" as string]: `${length * reach}px` }}
+              />
+            ))}
             <circle
               className="metaball drip-drop"
               cx={0}
-              cy={EDGE_Y + length}
+              cy={EDGE_Y}
               r={drop}
-              style={{ ...timing, ["--drip" as string]: `${length}px` }}
+              style={{ ...timing, ["--reach" as string]: `${length}px` }}
             />
           </svg>
         );
@@ -108,13 +122,13 @@ export function MetaballEdge({ className }: { className?: string }) {
     <svg aria-hidden className={className} width="100%" height={DRIP_BAND_HEIGHT}>
       <defs>
         <filter id={ids.goo} x="-10%" y="-50%" width="120%" height="200%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="7" />
-          {/* alpha × 18 − 7: a hard threshold (~0.4) that fuses the blurred shapes */}
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+          {/* alpha × 20 − 8: a hard threshold (~0.4) that fuses the blurred shapes into rounded metaballs */}
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" />
         </filter>
         <filter id={ids.rim} x="-10%" y="-50%" width="120%" height="200%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="7" />
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo" />
           <feMorphology in="goo" operator="dilate" radius="1.5" result="dilated" />
           <feFlood style={{ floodColor: "var(--brand)" }} floodOpacity="0.8" />
           <feComposite in2="dilated" operator="in" />

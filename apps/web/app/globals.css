@@ -132,9 +132,8 @@
 .drip-sway {
   animation-name: drip-sway;
 }
-.drip-stem {
-  transform-origin: 50% 0;
-  animation-name: drip-stem;
+.drip-neck {
+  animation-name: drip-neck;
 }
 .drip-drop {
   animation-name: drip-drop;
@@ -148,32 +147,30 @@
     transform: translateY(6px) scale(1.1);
   }
 }
-/* The stem stretches down, then snaps back once the drop pinches off */
-@keyframes drip-stem {
-  0% {
-    transform: scaleY(0.2);
+/* Neck circles slide down to --reach as the drip grows, then spring back once the drop pinches off */
+@keyframes drip-neck {
+  0%,
+  100% {
+    transform: translateY(0);
   }
   55% {
-    transform: scaleY(1);
+    transform: translateY(var(--reach));
   }
   72% {
-    transform: scaleY(0.4);
-  }
-  100% {
-    transform: scaleY(0.2);
+    transform: translateY(calc(var(--reach) * 0.3));
   }
 }
-/* The drop rides the stem tip (--drip = stem length), detaches at full stretch and falls */
+/* The drop leads the neck down (--reach = drip length), separates at full stretch and falls */
 @keyframes drip-drop {
   0% {
-    transform: translateY(calc(var(--drip) * -0.8)) scale(0.5);
+    transform: translateY(0) scale(0.6);
   }
   55% {
-    transform: translateY(0) scale(1);
+    transform: translateY(var(--reach)) scale(1);
     animation-timing-function: ease-in;
   }
   100% {
-    transform: translateY(48px) scale(0);
+    transform: translateY(calc(var(--reach) + 48px)) scale(0);
   }
 }
 
@@ -183,6 +180,11 @@
   }
   .metaball {
     animation: none;
+  }
+  /* Hang the drips fully stretched instead of animating them */
+  .drip-neck,
+  .drip-drop {
+    transform: translateY(var(--reach));
   }
 }
 
