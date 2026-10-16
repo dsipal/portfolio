@@ -23,6 +23,8 @@ test("home shows the hero, cubes and latest posts", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("devin sipal");
   await expect(page.locator("canvas")).toBeVisible();
+  // Dripping metaball edge at the bottom of the hero
+  await expect(page.locator("section").first().locator("svg mask")).toHaveCount(2);
   await page.getByRole("heading", { name: "Latest writing" }).scrollIntoViewIfNeeded();
   await expect(page.locator('a[href^="/post/"]')).toHaveCount(6);
 });

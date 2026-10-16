@@ -122,9 +122,67 @@
   }
 }
 
+/* Dripping hero edge (components/metaball-edge.tsx) */
+.metaball {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.drip-sway {
+  animation-name: drip-sway;
+}
+.drip-stem {
+  transform-origin: 50% 0;
+  animation-name: drip-stem;
+}
+.drip-drop {
+  animation-name: drip-drop;
+}
+@keyframes drip-sway {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(6px) scale(1.1);
+  }
+}
+/* The stem stretches down, then snaps back once the drop pinches off */
+@keyframes drip-stem {
+  0% {
+    transform: scaleY(0.2);
+  }
+  55% {
+    transform: scaleY(1);
+  }
+  72% {
+    transform: scaleY(0.4);
+  }
+  100% {
+    transform: scaleY(0.2);
+  }
+}
+/* The drop rides the stem tip (--drip = stem length), detaches at full stretch and falls */
+@keyframes drip-drop {
+  0% {
+    transform: translateY(calc(var(--drip) * -0.8)) scale(0.5);
+  }
+  55% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translateY(48px) scale(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .metaball {
+    animation: none;
   }
 }
 

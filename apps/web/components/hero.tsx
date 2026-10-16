@@ -5,6 +5,7 @@ import { motion, type Variants } from "motion/react";
 import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CubesLazy } from "@/components/cubes-lazy";
+import { DRIP_BAND_HEIGHT, MetaballEdge } from "@/components/metaball-edge";
 
 const container: Variants = {
   hidden: {},
@@ -35,7 +36,7 @@ export function Hero({
   return (
     <section className="relative isolate overflow-hidden">
       <HeroBackground />
-      <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 pt-12 pb-16 sm:px-6 md:grid-cols-[1.2fr_1fr] md:pt-20 md:pb-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 pt-12 pb-44 sm:px-6 md:grid-cols-[1.2fr_1fr] md:pt-20 md:pb-52">
         <motion.div variants={container} initial="hidden" animate="show" className="order-2 md:order-1">
           {role && (
             <motion.p
@@ -54,7 +55,7 @@ export function Hero({
             className="text-5xl font-semibold tracking-tight text-balance sm:text-6xl lg:text-7xl"
           >
             Hi, I&apos;m{" "}
-            <span className="bg-gradient-to-r from-brand-1 via-brand-2 to-brand-3 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-1 to-brand-2 bg-clip-text text-transparent">
               {name}
             </span>
           </motion.h1>
@@ -95,7 +96,13 @@ export function Hero({
 function HeroBackground() {
   return (
     <div aria-hidden className="absolute inset-0 -z-10">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,#000_40%,transparent_100%)] bg-[size:48px_48px] opacity-60" />
+      <div
+        className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:48px_48px] bg-bottom-left opacity-60 [mask-composite:intersect]"
+        style={{
+          // Fade in at the top and sides; stop exactly where the drip band takes over
+          maskImage: `linear-gradient(to bottom, transparent, #000 30%, #000 calc(100% - ${DRIP_BAND_HEIGHT}px), transparent calc(100% - ${DRIP_BAND_HEIGHT}px)), linear-gradient(to right, transparent, #000 20%, #000 80%, transparent)`,
+        }}
+      />
       <motion.div
         className="absolute -top-32 right-0 size-[28rem] rounded-full bg-brand-1/20 blur-3xl"
         animate={{ x: [0, -40, 0], y: [0, 30, 0] }}
@@ -106,6 +113,8 @@ function HeroBackground() {
         animate={{ x: [0, 40, 0], y: [0, -20, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
+      {/* The hero's bottom edge melts into the next section */}
+      <MetaballEdge className="absolute inset-x-0 bottom-0" />
     </div>
   );
 }
