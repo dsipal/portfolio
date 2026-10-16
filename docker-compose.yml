@@ -1,7 +1,7 @@
 name: portfolio
 
 # Production stack. Images are built and pushed to GHCR by
-# .github/workflows/deploy.yml; the host's Watchtower pulls new :latest images
+# .github/workflows/build.yml; the host's Watchtower pulls new :latest images
 # and recreates the labelled containers. Nothing is built on the server.
 
 networks:

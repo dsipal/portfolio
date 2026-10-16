@@ -1,4 +1,4 @@
-name: Deploy
+name: Build images
 
 # Builds and pushes images to GHCR. Watchtower on the host picks up the new
 # :latest tags and redeploys the containers.
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy
+  group: build-images
   cancel-in-progress: true
 
 permissions:

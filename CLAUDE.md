@@ -93,6 +93,6 @@ Post `content` is stored as Markdown (Strapi richtext) and rendered with `react-
 
 ## Deployment
 
-Pushing to `main` runs `.github/workflows/deploy.yml`, which builds `portfolio-web` and `portfolio-strapi` images, pushes them to GHCR (`:latest` and `:<sha>`). Watchtower on the host detects the new `:latest` images and recreates the `strapi` and `portfolio` containers (opted in via `com.centurylinklabs.watchtower.enable=true`; `postgres` is opted out). The production stack (`docker-compose.yml`) only references images (no `build:`) and sits behind a Traefik reverse proxy for TLS termination.
+Pushing to `main` runs `.github/workflows/build.yml`, which builds `portfolio-web` and `portfolio-strapi` images and pushes them to GHCR (`:latest` and `:<sha>`). Watchtower on the host detects the new `:latest` images and recreates the `strapi` and `portfolio` containers (opted in via `com.centurylinklabs.watchtower.enable=true`; `postgres` is opted out). There is no deploy step in CI. The production stack (`docker-compose.yml`) is pasted into Portainer as a web-editor stack, only references images (no `build:`) and sits behind a Traefik reverse proxy for TLS termination.
 
 GitHub repo config the workflow needs: variables `NEXT_PUBLIC_STRAPI_API_URL`, `NEXT_PUBLIC_GA_TRACKING_ID`; secrets `STRAPI_API_TOKEN` (optional, for prerendering real content at build).
