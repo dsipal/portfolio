@@ -25,12 +25,10 @@ const item: Variants = {
 export function Hero({
   name,
   role,
-  intro,
   socials,
 }: {
   name: string;
   role: string | null;
-  intro: string | null;
   socials: React.ReactNode;
 }) {
   return (
@@ -59,11 +57,6 @@ export function Hero({
               {name}
             </span>
           </motion.h1>
-          {intro && (
-            <motion.p variants={item} className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
-              {intro}
-            </motion.p>
-          )}
           <motion.div variants={item} className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg" className="group">
               <Link href="/blog/">

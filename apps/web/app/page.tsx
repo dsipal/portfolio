@@ -13,7 +13,7 @@ import { getSiteInfo } from "@/lib/site";
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [{ name, description }, about, { posts }, projects] = await Promise.all([
+  const [{ name }, about, { posts }, projects] = await Promise.all([
     getSiteInfo(),
     getAbout(),
     getPosts({ pageSize: 6 }),
@@ -31,7 +31,6 @@ export default async function HomePage() {
       <Hero
         name={name}
         role={role}
-        intro={description ?? about?.header ?? null}
         socials={<SocialLinks about={about} />}
       />
 
