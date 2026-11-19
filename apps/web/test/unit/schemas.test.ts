@@ -97,10 +97,26 @@ describe("about", () => {
       nowHeading: "Now",
       skillsHeading: "What I do",
       toolboxHeading: "Toolbox",
-      resumeLabel: "Résumé",
+      resume: null,
+      coverLetter: null,
       skills: [],
       tech: [],
     });
+  });
+
+  it("links documents to the uploaded file before the URL", () => {
+    const parsed = about.parse({
+      id: 1,
+      documentId: "a",
+      resumeUrl: "https://example.com/cv.pdf",
+      resumeLabel: " ",
+      coverLetterUrl: "https://example.com/letter.pdf",
+      coverLetterLabel: "Letter",
+      coverLetterFile: { id: 2, url: "https://cdn.example.com/letter.pdf" },
+    });
+    expect(parsed.resume).toEqual({ href: "https://example.com/cv.pdf", label: "Résumé" });
+    expect(parsed.coverLetter).toEqual({ href: "https://cdn.example.com/letter.pdf", label: "Letter" });
+    expect(parsed).not.toHaveProperty("resumeUrl");
   });
 
   it("drops unnamed skills and tech and normalizes their links and icons", () => {

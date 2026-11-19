@@ -137,4 +137,8 @@ test("about page renders CMS sections", async ({ page }) => {
   await expect(toolbox.getByRole("link", { name: "TypeScript" })).toHaveAttribute("href", /typescriptlang/);
   // The intro shows the résumé as its own button, not again in the social icons (the footer keeps one)
   await expect(page.getByRole("main").getByRole("link", { name: "Résumé" })).toHaveCount(1);
+  await expect(page.getByRole("main").getByRole("link", { name: "Cover letter" })).toHaveAttribute(
+    "href",
+    /\/uploads\/cover_letter\.pdf$/,
+  );
 });

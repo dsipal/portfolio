@@ -16,7 +16,7 @@ export function SocialLinks({
   const links = [
     { href: about?.github, label: "GitHub", icon: FaGithub },
     { href: about?.linkedIn, label: "LinkedIn", icon: FaLinkedin },
-    { href: withResume ? about?.resumeUrl : null, label: about?.resumeLabel ?? "Résumé", icon: FileTextIcon },
+    { href: withResume ? about?.resume?.href : null, label: about?.resume?.label ?? "Résumé", icon: FileTextIcon },
   ].filter((l): l is typeof l & { href: string } => Boolean(l.href));
 
   return (

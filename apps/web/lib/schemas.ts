@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getStrapiMedia } from "./media";
 
 // Schemas for Strapi 5 REST responses (flat: fields live directly on each
 // entry). Every response is parsed against these, and the TypeScript types
@@ -108,6 +109,15 @@ const label = (fallback: string) => optional(z.string()).transform((value) => va
 /** A Font Awesome icon picked in the CMS ("fa-solid code", "fa-brands github") */
 const icon = optional(z.string()).transform((value) => value?.trim() || null);
 
+/**
+ * A downloadable document (résumé, cover letter): an uploaded file wins over
+ * the external URL. Null when neither is set, so the link is hidden.
+ */
+function documentLink(file: StrapiMedia | null, href: string | null, label: string) {
+  const resolved = getStrapiMedia(file, { public: true }) ?? href;
+  return resolved ? { href: resolved, label } : null;
+}
+
 export const about = z.object({
   ...entry,
   eyebrow: label("About me"),
@@ -118,6 +128,10 @@ export const about = z.object({
   linkedIn: url,
   resumeUrl: url,
   resumeLabel: label("Résumé"),
+  resumeFile: optional(strapiMedia),
+  coverLetterUrl: url,
+  coverLetterLabel: label("Cover letter"),
+  coverLetterFile: optional(strapiMedia),
   currentPosition: optional(
     z.object({
       companyTitle: optional(z.string()),
@@ -138,7 +152,12 @@ export const about = z.object({
   tech: optional(z.array(z.object({ name: optional(z.string()), link: url, icon }))).transform((items) =>
     (items ?? []).filter((t): t is typeof t & { name: string } => Boolean(t.name?.trim())),
   ),
-});
+})
+  .transform(({ resumeUrl, resumeLabel, resumeFile, coverLetterUrl, coverLetterLabel, coverLetterFile, ...a }) => ({
+    ...a,
+    resume: documentLink(resumeFile, resumeUrl, resumeLabel),
+    coverLetter: documentLink(coverLetterFile, coverLetterUrl, coverLetterLabel),
+  }));
 
 export const homepage = z.object({
   ...entry,

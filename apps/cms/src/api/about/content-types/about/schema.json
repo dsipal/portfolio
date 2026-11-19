@@ -43,6 +43,29 @@
       "type": "string",
       "default": "Résumé"
     },
+    "resumeFile": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "files"
+      ]
+    },
+    "coverLetterUrl": {
+      "type": "string"
+    },
+    "coverLetterLabel": {
+      "type": "string",
+      "default": "Cover letter"
+    },
+    "coverLetterFile": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "files"
+      ]
+    },
     "currentPosition": {
       "displayName": "currentPosition",
       "type": "component",

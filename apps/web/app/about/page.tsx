@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowUpRightIcon, BriefcaseIcon, FileTextIcon } from "lucide-react";
+import { ArrowUpRightIcon, BriefcaseIcon, FileTextIcon, MailIcon } from "lucide-react";
 import { Container } from "@/components/container";
 import { FaIcon, resolveFaIcon } from "@/components/fa-icon";
 import { Markdown } from "@/components/markdown";
@@ -202,11 +202,19 @@ function Intro({ about }: { about: About }) {
             </p>
           )}
           <div className="flex flex-wrap items-center gap-2">
-            {about.resumeUrl && (
+            {about.resume && (
               <Button asChild size="lg">
-                <a href={about.resumeUrl} target="_blank" rel="noopener noreferrer">
+                <a href={about.resume.href} target="_blank" rel="noopener noreferrer">
                   <FileTextIcon aria-hidden />
-                  {about.resumeLabel}
+                  {about.resume.label}
+                </a>
+              </Button>
+            )}
+            {about.coverLetter && (
+              <Button asChild size="lg" variant="outline">
+                <a href={about.coverLetter.href} target="_blank" rel="noopener noreferrer">
+                  <MailIcon aria-hidden />
+                  {about.coverLetter.label}
                 </a>
               </Button>
             )}

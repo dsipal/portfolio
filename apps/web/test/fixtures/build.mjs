@@ -124,6 +124,11 @@ const about = {
   linkedIn: "https://linkedin.com/in/example",
   resumeUrl: "https://example.com/resume.pdf",
   resumeLabel: "Résumé",
+  resumeFile: null,
+  coverLetterUrl: null,
+  coverLetterLabel: "Cover letter",
+  // An uploaded file wins over coverLetterUrl; relative uploads get the public Strapi URL
+  coverLetterFile: { id: 50, url: "/uploads/cover_letter.pdf", alternativeText: null, width: null, height: null, formats: null },
   eyebrow: "About me",
   nowHeading: "Now",
   currentlyWorkingOn: "This portfolio",

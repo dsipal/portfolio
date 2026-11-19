@@ -287,7 +287,14 @@ export const getAbout = cache(async () =>
   fetchSingle(
     "about",
     "/about",
-    { populate: { image: true, currentPosition: true, skills: true, tech: true } },
+    { populate: {
+        image: true,
+        resumeFile: true,
+        coverLetterFile: true,
+        currentPosition: true,
+        skills: true,
+        tech: true,
+      }, },
     [TAGS.about],
     about,
   ),
