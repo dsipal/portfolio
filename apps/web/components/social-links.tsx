@@ -3,11 +3,20 @@ import { FileTextIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { About } from "@/lib/schemas";
 
-export function SocialLinks({ about, className }: { about: About | null; className?: string }) {
+export function SocialLinks({
+  about,
+  withResume = true,
+  className,
+}: {
+  about: About | null;
+  /** Off where the page shows the résumé as its own button */
+  withResume?: boolean;
+  className?: string;
+}) {
   const links = [
     { href: about?.github, label: "GitHub", icon: FaGithub },
     { href: about?.linkedIn, label: "LinkedIn", icon: FaLinkedin },
-    { href: about?.resumeUrl, label: "Résumé", icon: FileTextIcon },
+    { href: withResume ? about?.resumeUrl : null, label: about?.resumeLabel ?? "Résumé", icon: FileTextIcon },
   ].filter((l): l is typeof l & { href: string } => Boolean(l.href));
 
   return (

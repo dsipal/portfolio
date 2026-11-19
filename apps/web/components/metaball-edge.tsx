@@ -14,14 +14,14 @@ const EDGE_Y = 44;
  * edge. Widths are a percentage of the band, so neighbours always overlap by
  * the same fraction: no near-gaps that the goo filter would pinch into spikes.
  */
-const WAVE_STEP = 4.5; // % between ellipse centres
-const WAVE_RX = 3.2; // % half-width; > WAVE_STEP / 2 so neighbours overlap
-const WAVE_RY = [22, 16, 28, 19, 25, 17, 30, 21, 18, 26, 20, 24]; // px sag, varied so the edge looks organic
+const WAVE_STEP = 4; // % between ellipse centres
+const WAVE_RX = 3.4; // % half-width; well over WAVE_STEP / 2 so neighbours blend into one soft swell
+const WAVE_RY = [22, 18, 26, 20, 24, 19, 27, 21, 19, 25, 20, 23]; // px sag, gently varied so the edge looks organic
 const WAVE = Array.from({ length: Math.ceil(110 / WAVE_STEP) }, (_, i) => ({
   cx: -5 + i * WAVE_STEP,
   ry: WAVE_RY[i % WAVE_RY.length],
-  duration: 6 + ((i * 7) % 5),
-  delay: -((i * 1.3) % 6),
+  duration: 9 + ((i * 7) % 5),
+  delay: -((i * 1.7) % 9),
 }));
 
 /**
@@ -33,23 +33,30 @@ const WAVE = Array.from({ length: Math.ceil(110 / WAVE_STEP) }, (_, i) => ({
  * globals.css) must stay within DRIP_BAND_HEIGHT.
  */
 const DRIPS: [number, number, number, number, number, number][] = [
-  [7, 78, 14, 14, 6.5, 0],
-  [19, 96, 16, 17, 8, -3],
-  [34, 62, 13, 13, 5.5, -1.5],
-  [43, 90, 15, 16, 7.5, -5],
-  [55, 100, 17, 18, 9, -2],
-  [68, 70, 14, 14, 6, -4],
-  [78, 94, 16, 17, 8.5, -6],
-  [92, 84, 15, 15, 7, -1],
+  [7, 76, 15, 16, 8, 0],
+  [19, 94, 17, 19, 10, -3.5],
+  [34, 62, 14, 15, 7, -1.5],
+  [43, 88, 16, 18, 9.5, -6],
+  [55, 98, 18, 20, 11, -2.5],
+  [68, 70, 15, 16, 7.5, -5],
+  [78, 92, 17, 19, 10.5, -7.5],
+  [92, 82, 16, 17, 8.5, -1],
 ];
 
 /** Neck circles as [fraction of the drip length, radius scale]: wide at the edge, narrowing toward the drop */
 const NECK: [number, number][] = [
-  [0.2, 1.15],
-  [0.4, 1],
-  [0.6, 0.85],
-  [0.8, 0.75],
+  [0.12, 1.2],
+  [0.24, 1.08],
+  [0.36, 0.98],
+  [0.48, 0.9],
+  [0.6, 0.84],
+  [0.72, 0.79],
+  [0.84, 0.76],
 ];
+
+/** Goo filter: a wide blur then a gentle alpha threshold (~0.42) keeps every join a soft, round curve */
+const GOO_BLUR = 13;
+const GOO_ALPHA = "0 0 0 22 -9";
 
 function Shapes() {
   return (
@@ -73,7 +80,7 @@ function Shapes() {
           // Nested <svg> positions the drip at cx% so its circles can be placed in px
           <svg key={`d${cx}`} x={`${cx}%`} overflow="visible">
             {/* Rounded swell the drip grows out of, so it never meets the surface at a sharp angle */}
-            <circle className="metaball drip-sway" cx={0} cy={EDGE_Y} r={neck * 1.8} style={timing} />
+            <circle className="metaball drip-sway" cx={0} cy={EDGE_Y} r={neck * 2} style={timing} />
             {NECK.map(([reach, scale]) => (
               <circle
                 key={reach}
@@ -122,13 +129,17 @@ export function MetaballEdge({ className }: { className?: string }) {
     <svg aria-hidden className={className} width="100%" height={DRIP_BAND_HEIGHT}>
       <defs>
         <filter id={ids.goo} x="-10%" y="-50%" width="120%" height="200%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
-          {/* alpha × 20 − 8: a hard threshold (~0.4) that fuses the blurred shapes into rounded metaballs */}
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation={GOO_BLUR} />
+          {/* A hard alpha threshold that fuses the blurred shapes into rounded metaballs */}
+          <feColorMatrix type="matrix" values={`1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  ${GOO_ALPHA}`} />
         </filter>
         <filter id={ids.rim} x="-10%" y="-50%" width="120%" height="200%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation={GOO_BLUR} />
+          <feColorMatrix
+            type="matrix"
+            values={`1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  ${GOO_ALPHA}`}
+            result="goo"
+          />
           <feMorphology in="goo" operator="dilate" radius="1.5" result="dilated" />
           <feFlood style={{ floodColor: "var(--brand)" }} floodOpacity="0.8" />
           <feComposite in2="dilated" operator="in" />

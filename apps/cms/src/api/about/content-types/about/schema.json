@@ -12,6 +12,10 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "About me"
+    },
     "header": {
       "type": "string"
     },
@@ -23,10 +27,7 @@
       "multiple": false,
       "required": false,
       "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
+        "images"
       ]
     },
     "github": {
@@ -38,8 +39,9 @@
     "resumeUrl": {
       "type": "string"
     },
-    "currentlyWorkingOn": {
-      "type": "string"
+    "resumeLabel": {
+      "type": "string",
+      "default": "Résumé"
     },
     "currentPosition": {
       "displayName": "currentPosition",
@@ -47,11 +49,26 @@
       "repeatable": false,
       "component": "about.current-position"
     },
+    "nowHeading": {
+      "type": "string",
+      "default": "Now"
+    },
+    "currentlyWorkingOn": {
+      "type": "string"
+    },
+    "skillsHeading": {
+      "type": "string",
+      "default": "What I do"
+    },
     "skills": {
       "displayName": "skills",
       "type": "component",
       "repeatable": true,
       "component": "about.skills"
+    },
+    "toolboxHeading": {
+      "type": "string",
+      "default": "Toolbox"
     },
     "tech": {
       "displayName": "tech",

@@ -24,11 +24,15 @@ const item: Variants = {
 
 export function Hero({
   name,
-  role,
+  greeting,
+  subheading,
   socials,
 }: {
   name: string;
-  role: string | null;
+  /** Text before the name in the heading (CMS: homepage.heroGreeting) */
+  greeting: string;
+  /** Line under the heading (CMS: homepage.heroSubheading); hidden when empty */
+  subheading: string | null;
   socials: React.ReactNode;
 }) {
   return (
@@ -36,27 +40,20 @@ export function Hero({
       <HeroBackground />
       <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 pt-12 pb-44 sm:px-6 md:grid-cols-[1.2fr_1fr] md:pt-20 md:pb-52">
         <motion.div variants={container} initial="hidden" animate="show" className="order-2 md:order-1">
-          {role && (
-            <motion.p
-              variants={item}
-              className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-sm text-muted-foreground backdrop-blur"
-            >
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand opacity-60 motion-reduce:animate-none" />
-                <span className="relative inline-flex size-2 rounded-full bg-brand" />
-              </span>
-              {role}
-            </motion.p>
-          )}
           <motion.h1
             variants={item}
             className="text-5xl font-semibold tracking-tight text-balance sm:text-6xl lg:text-7xl"
           >
-            Hi, I&apos;m{" "}
+            {greeting}{" "}
             <span className="bg-gradient-to-r from-brand-1 to-brand-2 bg-clip-text text-transparent">
               {name}
             </span>
           </motion.h1>
+          {subheading && (
+            <motion.p variants={item} className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
+              {subheading}
+            </motion.p>
+          )}
           <motion.div variants={item} className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg" className="group">
               <Link href="/blog/">

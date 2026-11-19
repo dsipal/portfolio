@@ -21,31 +21,10 @@ const url = optional(z.string()).transform((value) => {
   }
 });
 
-/**
- * A list of technology names. Accepts the techStack component
- * ([{ name }]), the legacy JSON field as an array (["a", "b"]), an object with
- * numeric keys ({ 0: "a", 1: "b" }) or a comma-separated string ("a, b").
- */
-export const techList = z.unknown().transform((value): string[] => {
-  const items =
-    typeof value === "string"
-      ? value.split(",")
-      : Array.isArray(value)
-        ? value
-        : value && typeof value === "object"
-          ? Object.values(value)
-          : [];
-  return items
-    .map((item) =>
-      typeof item === "string"
-        ? item
-        : item && typeof item === "object" && "name" in item
-          ? String(item.name ?? "")
-          : "",
-    )
-    .map((s) => s.trim())
-    .filter(Boolean);
-});
+/** The project techStack component ([{ name }]) as a list of names; blank names are dropped */
+export const techStack = optional(z.array(z.object({ name: optional(z.string()) }))).transform((items) =>
+  (items ?? []).map((item) => item.name?.trim() ?? "").filter(Boolean),
+);
 
 const entry = {
   id: z.number(),
@@ -115,25 +94,30 @@ export const project = z
     summary: optional(z.string()),
     description: optional(z.string()),
     image: optional(strapiMedia),
-    techStack: techList.default([]),
-    /** Legacy JSON field, read until every project uses techStack */
-    tech: techList.default([]),
+    techStack,
     link: url,
     repoUrl: url,
     featured: optional(z.boolean()).transform(Boolean),
     order: optional(z.number()).transform((n) => n ?? 0),
   })
-  .transform(({ techStack, tech, ...p }) => ({ ...p, tech: techStack.length > 0 ? techStack : tech }));
+  .transform(({ techStack, ...p }) => ({ ...p, tech: techStack }));
+
+/** An editable label: blank or missing falls back to the CMS default */
+const label = (fallback: string) => optional(z.string()).transform((value) => value?.trim() || fallback);
+
+/** A Font Awesome icon picked in the CMS ("fa-solid code", "fa-brands github") */
+const icon = optional(z.string()).transform((value) => value?.trim() || null);
 
 export const about = z.object({
   ...entry,
+  eyebrow: label("About me"),
   header: optional(z.string()),
   body: optional(z.string()),
   image: optional(strapiMedia),
   github: url,
   linkedIn: url,
   resumeUrl: url,
-  currentlyWorkingOn: optional(z.string()),
+  resumeLabel: label("Résumé"),
   currentPosition: optional(
     z.object({
       companyTitle: optional(z.string()),
@@ -142,6 +126,26 @@ export const about = z.object({
       companyLink: url,
     }),
   ),
+  nowHeading: label("Now"),
+  currentlyWorkingOn: optional(z.string()),
+  skillsHeading: label("What I do"),
+  skills: optional(
+    z.array(z.object({ name: optional(z.string()), description: optional(z.string()), icon })),
+  ).transform((items) =>
+    (items ?? []).filter((s): s is typeof s & { name: string } => Boolean(s.name?.trim())),
+  ),
+  toolboxHeading: label("Toolbox"),
+  tech: optional(z.array(z.object({ name: optional(z.string()), link: url, icon }))).transform((items) =>
+    (items ?? []).filter((t): t is typeof t & { name: string } => Boolean(t.name?.trim())),
+  ),
+});
+
+export const homepage = z.object({
+  ...entry,
+  heroGreeting: label("Hi, I'm"),
+  heroSubheading: optional(z.string()).transform((value) => value?.trim() || null),
+  /** "Open to" cell of the front page's Now strip; hidden when empty */
+  availability: optional(z.string()).transform((value) => value?.trim() || null),
 });
 
 export const global = z.object({
@@ -163,6 +167,7 @@ export type Category = z.infer<typeof category>;
 export type Post = z.infer<typeof post>;
 export type Project = z.infer<typeof project>;
 export type About = z.infer<typeof about>;
+export type Homepage = z.infer<typeof homepage>;
 export type Global = z.infer<typeof global>;
 
 /** Post as shown in lists: content is replaced by its reading time */

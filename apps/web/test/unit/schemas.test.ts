@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { about, post, project, techList } from "@/lib/schemas";
+import { about, homepage, post, project, techStack } from "@/lib/schemas";
 
 const baseProject = { id: 1, documentId: "p1", title: "Portfolio" };
 const basePost = {
@@ -11,14 +11,8 @@ const basePost = {
   updatedAt: "2026-01-01T00:00:00.000Z",
 };
 
-describe("techList", () => {
+describe("techStack", () => {
   it.each([
-    [
-      ["NestJS", "TypeScript"],
-      ["NestJS", "TypeScript"],
-    ],
-    [{ 0: "NestJS", 1: "TypeScript" }, ["NestJS", "TypeScript"]],
-    ["NestJS, TypeScript ,", ["NestJS", "TypeScript"]],
     [
       [
         { id: 1, name: "Go" },
@@ -26,11 +20,16 @@ describe("techList", () => {
       ],
       ["Go", "Cobra"],
     ],
-    [[" ", "", 3, null], []],
+    [[{ name: "" }, { name: null }, {}], []],
     [null, []],
     [undefined, []],
   ])("normalizes %j", (input, expected) => {
-    expect(techList.parse(input)).toEqual(expected);
+    expect(techStack.parse(input)).toEqual(expected);
+  });
+
+  it("rejects the removed legacy shapes", () => {
+    expect(techStack.safeParse("Go, Cobra").success).toBe(false);
+    expect(techStack.safeParse({ 0: "Go" }).success).toBe(false);
   });
 });
 
@@ -46,10 +45,10 @@ describe("project", () => {
     });
   });
 
-  it("prefers techStack over the legacy tech field", () => {
-    const parsed = project.parse({ ...baseProject, techStack: [{ name: "Go" }], tech: ["Old"] });
+  it("exposes techStack names as tech", () => {
+    const parsed = project.parse({ ...baseProject, techStack: [{ id: 1, name: "Go" }] });
     expect(parsed.tech).toEqual(["Go"]);
-    expect(project.parse({ ...baseProject, techStack: [], tech: { 0: "Old" } }).tech).toEqual(["Old"]);
+    expect(parsed).not.toHaveProperty("techStack");
   });
 
   it("keeps valid URLs and drops invalid ones", () => {
@@ -90,5 +89,44 @@ describe("about", () => {
     expect(parsed.github).toBe("https://github.com/x");
     expect(parsed.linkedIn).toBeNull();
     expect(parsed.currentPosition).toBeNull();
+  });
+
+  it("falls back to default labels and empty lists", () => {
+    expect(about.parse({ id: 1, documentId: "a", eyebrow: "  ", skillsHeading: null })).toMatchObject({
+      eyebrow: "About me",
+      nowHeading: "Now",
+      skillsHeading: "What I do",
+      toolboxHeading: "Toolbox",
+      resumeLabel: "Résumé",
+      skills: [],
+      tech: [],
+    });
+  });
+
+  it("drops unnamed skills and tech and normalizes their links and icons", () => {
+    const parsed = about.parse({
+      id: 1,
+      documentId: "a",
+      skills: [{ name: "Web", icon: " fa-solid code " }, { name: "" }],
+      tech: [{ name: "Go", link: "nope", icon: "" }, { name: null }],
+    });
+    expect(parsed.skills).toEqual([{ name: "Web", description: null, icon: "fa-solid code" }]);
+    expect(parsed.tech).toEqual([{ name: "Go", link: null, icon: null }]);
+  });
+});
+
+describe("homepage", () => {
+  it("defaults the greeting and hides a blank subheading", () => {
+    expect(homepage.parse({ id: 1, documentId: "h", heroSubheading: "   " })).toMatchObject({
+      heroGreeting: "Hi, I'm",
+      heroSubheading: null,
+      availability: null,
+    });
+  });
+
+  it("trims availability", () => {
+    expect(homepage.parse({ id: 1, documentId: "h", availability: " Open source " }).availability).toBe(
+      "Open source",
+    );
   });
 });

@@ -14,7 +14,8 @@
     "test": "pnpm --filter web test",
     "test:e2e": "pnpm --filter web test:e2e",
     "mock-strapi": "pnpm --filter web mock-strapi",
-    "format": "prettier --write \"apps/web/{app,components,lib,test,e2e}/**/*.{ts,tsx,css}\""
+    "format": "prettier --write \"apps/web/{app,components,lib,test,e2e}/**/*.{ts,tsx,css}\"",
+    "docker:dev": "node scripts/compose-dev.mjs"
   },
   "devDependencies": {
     "prettier": "^3.8.3"

@@ -4,24 +4,23 @@
   "info": {
     "singularName": "homepage",
     "pluralName": "homepages",
-    "displayName": "Homepage"
+    "displayName": "Homepage",
+    "description": "Front page copy"
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "navTitle": {
-      "type": "string"
+    "heroGreeting": {
+      "type": "string",
+      "default": "Hi, I'm"
     },
-    "seo": {
-      "type": "string"
+    "heroSubheading": {
+      "type": "text"
     },
-    "hero": {
-      "displayName": "hero",
-      "type": "component",
-      "repeatable": true,
-      "component": "ui.hero"
+    "availability": {
+      "type": "string"
     }
   }
 }

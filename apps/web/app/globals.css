@@ -126,7 +126,8 @@
 .metaball {
   transform-box: fill-box;
   transform-origin: center;
-  animation-timing-function: ease-in-out;
+  /* Sine-like in/out so every keyframe eases instead of snapping */
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
   animation-iteration-count: infinite;
 }
 .drip-sway {
@@ -138,39 +139,50 @@
 .drip-drop {
   animation-name: drip-drop;
 }
+/* The surface breathes: a slow, slightly lopsided swell */
 @keyframes drip-sway {
   0%,
   100% {
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(1, 1);
   }
-  50% {
-    transform: translateY(6px) scale(1.1);
+  35% {
+    transform: translateY(5px) scale(1.06, 1.12);
+  }
+  70% {
+    transform: translateY(2px) scale(1.1, 1.04);
   }
 }
-/* Neck circles slide down to --reach as the drip grows, then spring back once the drop pinches off */
+/* Neck circles ooze down to --reach, then ease back up with a soft rebound once the drop pinches off */
 @keyframes drip-neck {
   0%,
   100% {
     transform: translateY(0);
   }
-  55% {
+  52% {
     transform: translateY(var(--reach));
+    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
   }
-  72% {
+  68% {
+    transform: translateY(calc(var(--reach) * 0.18));
+  }
+  80% {
     transform: translateY(calc(var(--reach) * 0.3));
   }
 }
-/* The drop leads the neck down (--reach = drip length), separates at full stretch and falls */
+/* The drop swells as it leads the neck down, wobbles round as it separates, then falls and shrinks away */
 @keyframes drip-drop {
   0% {
-    transform: translateY(0) scale(0.6);
+    transform: translateY(0) scale(0.55);
   }
-  55% {
-    transform: translateY(var(--reach)) scale(1);
-    animation-timing-function: ease-in;
+  52% {
+    transform: translateY(var(--reach)) scale(1, 1.08);
+  }
+  58% {
+    transform: translateY(calc(var(--reach) + 4px)) scale(1.06, 0.96);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
   }
   100% {
-    transform: translateY(calc(var(--reach) + 48px)) scale(0);
+    transform: translateY(calc(var(--reach) + 48px)) scale(0.2);
   }
 }
 

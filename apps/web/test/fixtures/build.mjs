@@ -80,29 +80,25 @@ posts[13] = {
   description: null,
 };
 
+const stack = (...names) => names.map((name, i) => ({ id: i + 1, name }));
 const projects = [
   {
     title: "Portfolio",
-    tech: ["Next.js", "Strapi", "Docker"],
+    techStack: stack("Next.js", "Strapi", "Docker"),
     featured: true,
     repoUrl: "https://github.com/example/portfolio",
   },
-  { title: "Homelab", tech: ["Proxmox", "Traefik"], featured: true, repoUrl: null },
-  // Malformed tech: an object with numeric keys, as an editor once entered it
+  { title: "Homelab", techStack: stack("Proxmox", "Traefik"), featured: true, repoUrl: null },
+  // A blank item and stray whitespace, as an editor might leave them
   {
     title: "API service",
-    tech: { 0: "NestJS", 1: "TypeScript", 2: "Postgres" },
+    techStack: stack(" NestJS ", "", "TypeScript", "Postgres"),
     featured: true,
     repoUrl: null,
   },
-  // New-style techStack component wins over the legacy JSON field
   {
     title: "CLI tool",
-    techStack: [
-      { id: 1, name: "Go" },
-      { id: 2, name: "Cobra" },
-    ],
-    tech: ["ignored"],
+    techStack: stack("Go", "Cobra"),
     featured: false,
     repoUrl: "https://github.com/example/cli",
   },
@@ -126,8 +122,30 @@ const about = {
   image: null,
   github: "https://github.com/example",
   linkedIn: "https://linkedin.com/in/example",
-  resumeUrl: null,
+  resumeUrl: "https://example.com/resume.pdf",
+  resumeLabel: "Résumé",
+  eyebrow: "About me",
+  nowHeading: "Now",
   currentlyWorkingOn: "This portfolio",
+  skillsHeading: "What I do",
+  skills: [
+    {
+      id: 1,
+      name: "Web applications",
+      description: "Server-rendered React front ends.",
+      icon: "fa-solid code",
+    },
+    { id: 2, name: "Infrastructure", description: "Containers and **CI**.", icon: "fa-solid server" },
+    // Unknown icon: the card renders without one
+    { id: 3, name: "Writing", description: null, icon: "fa-solid not-a-real-icon" },
+  ],
+  toolboxHeading: "Toolbox",
+  tech: [
+    { id: 1, name: "TypeScript", link: "https://www.typescriptlang.org", icon: "fa-brands js" },
+    { id: 2, name: "Docker", link: null, icon: "fa-brands docker" },
+    // Invalid link: rendered as a plain chip
+    { id: 3, name: "Postgres", link: "not a url", icon: null },
+  ],
   currentPosition: {
     companyTitle: "Acme",
     positionTitle: "Software Engineer",
@@ -152,4 +170,13 @@ write("categories.json", categories);
 write("posts.json", posts);
 write("projects.json", projects);
 write("about.json", about);
+const homepage = {
+  id: 1,
+  documentId: "homepage",
+  heroGreeting: "Hi, I'm",
+  heroSubheading: "I build fast, dependable web apps and the infrastructure under them.",
+  availability: "  Freelance & contract work  ",
+};
+
 write("global.json", global);
+write("homepage.json", homepage);

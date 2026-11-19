@@ -26,7 +26,37 @@ test("home shows the hero, cubes and latest posts", async ({ page }) => {
   // Dripping metaball edge at the bottom of the hero
   await expect(page.locator("section").first().locator("svg mask")).toHaveCount(2);
   await page.getByRole("heading", { name: "Latest writing" }).scrollIntoViewIfNeeded();
-  await expect(page.locator('a[href^="/post/"]')).toHaveCount(6);
+  await expect(page.getByRole("main").getByRole("listitem").locator('a[href^="/post/"]')).toHaveCount(8);
+});
+
+test("now strip shows role, work, latest post and availability", async ({ page }) => {
+  await page.goto("/");
+  const strip = page.getByRole("region", { name: "Now" });
+  await expect(strip.getByRole("term")).toHaveText(["Role", "Working on", "Latest post", "Open to"]);
+  await expect(strip).toContainText("Software Engineer at Acme");
+  await expect(strip).toContainText("This portfolio");
+  await expect(strip).toContainText("Freelance & contract work");
+  await expect(strip.getByRole("link", { name: /./ }).last()).toHaveAttribute("href", /^\/post\//);
+});
+
+test("first featured project is the spotlight", async ({ page }) => {
+  await page.goto("/");
+  const spotlight = page.locator("article", { hasText: "Featured" }).first();
+  await expect(spotlight.getByRole("heading", { level: 3 })).toBeVisible();
+  await expect(spotlight.getByRole("list", { name: "Technologies" })).toBeVisible();
+});
+
+test("writing index filters by category", async ({ page }) => {
+  await page.goto("/");
+  const filters = page.getByRole("group", { name: "Filter by category" });
+  const rows = page.getByRole("main").getByRole("listitem").filter({ has: page.locator('a[href^="/post/"]') });
+  await expect(rows).toHaveCount(8);
+  await filters.getByRole("button", { name: "homelab" }).click();
+  await expect(filters.getByRole("button", { name: "homelab" })).toHaveAttribute("aria-pressed", "true");
+  await expect(rows).toHaveCount(3);
+  await expect(rows.filter({ hasText: "engineering" })).toHaveCount(0);
+  await filters.getByRole("button", { name: "All" }).click();
+  await expect(rows).toHaveCount(8);
 });
 
 test("pastel palette is set before paint", async ({ page }) => {
@@ -83,13 +113,28 @@ test("theme toggle switches between light and dark", async ({ page }) => {
   await expect(html).toHaveClass(wasDark ? /light/ : /dark/);
 });
 
-test("project tech badges render from every supported format", async ({ page }) => {
+test("project tech badges render from techStack", async ({ page }) => {
   await page.goto("/projects/");
   const badges = (title: string) =>
     page.locator("article", { has: page.getByRole("heading", { name: title }) }).getByRole("listitem");
   await expect(badges("Portfolio")).toHaveText(["Next.js", "Strapi", "Docker"]);
-  // Legacy JSON entered as an object with numeric keys
+  // Blank items are dropped and names trimmed
   await expect(badges("API service")).toHaveText(["NestJS", "TypeScript", "Postgres"]);
-  // techStack component takes precedence over the legacy field
-  await expect(badges("CLI tool")).toHaveText(["Go", "Cobra"]);
+});
+
+test("hero copy comes from the CMS", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Hi, I'm");
+  await expect(page.getByText("I build fast, dependable web apps")).toBeVisible();
+});
+
+test("about page renders CMS sections", async ({ page }) => {
+  await page.goto("/about/");
+  await expect(page.getByRole("heading", { name: "What I do" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Writing" })).toBeVisible();
+  const toolbox = page.locator("section", { has: page.getByRole("heading", { name: "Toolbox" }) });
+  await expect(toolbox.getByRole("listitem")).toHaveText(["TypeScript", "Docker", "Postgres"]);
+  await expect(toolbox.getByRole("link", { name: "TypeScript" })).toHaveAttribute("href", /typescriptlang/);
+  // The intro shows the résumé as its own button, not again in the social icons (the footer keeps one)
+  await expect(page.getByRole("main").getByRole("link", { name: "Résumé" })).toHaveCount(1);
 });

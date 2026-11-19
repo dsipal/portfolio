@@ -9,7 +9,20 @@
     "link": "https://example.com",
     "order": 0,
     "title": "Portfolio",
-    "tech": ["Next.js", "Strapi", "Docker"],
+    "techStack": [
+      {
+        "id": 1,
+        "name": "Next.js"
+      },
+      {
+        "id": 2,
+        "name": "Strapi"
+      },
+      {
+        "id": 3,
+        "name": "Docker"
+      }
+    ],
     "featured": true,
     "repoUrl": "https://github.com/example/portfolio"
   },
@@ -23,7 +36,16 @@
     "link": "https://example.com",
     "order": 1,
     "title": "Homelab",
-    "tech": ["Proxmox", "Traefik"],
+    "techStack": [
+      {
+        "id": 1,
+        "name": "Proxmox"
+      },
+      {
+        "id": 2,
+        "name": "Traefik"
+      }
+    ],
     "featured": true,
     "repoUrl": null
   },
@@ -37,11 +59,24 @@
     "link": "https://example.com",
     "order": 2,
     "title": "API service",
-    "tech": {
-      "0": "NestJS",
-      "1": "TypeScript",
-      "2": "Postgres"
-    },
+    "techStack": [
+      {
+        "id": 1,
+        "name": " NestJS "
+      },
+      {
+        "id": 2,
+        "name": ""
+      },
+      {
+        "id": 3,
+        "name": "TypeScript"
+      },
+      {
+        "id": 4,
+        "name": "Postgres"
+      }
+    ],
     "featured": true,
     "repoUrl": null
   },
@@ -65,7 +100,6 @@
         "name": "Cobra"
       }
     ],
-    "tech": ["ignored"],
     "featured": false,
     "repoUrl": "https://github.com/example/cli"
   }

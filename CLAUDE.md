@@ -23,18 +23,21 @@ pnpm lint | pnpm typecheck   # web: ESLint, tsc --noEmit
 pnpm test                    # web: Vitest unit tests (apps/web/test/unit)
 pnpm test:e2e                # web: Playwright smoke tests (see Testing)
 pnpm --filter <web|cms> <script>
+pnpm docker:dev <args>      # docker compose -f docker-compose.dev.yml <args> (see Docker)
 ```
 
 ### Docker (full stack)
 ```bash
 # Development — mounts each app's source for hot-reload, exposes :3000 and :1337
-docker compose -f docker-compose.dev.yml up
+pnpm docker:dev up          # wraps: docker compose -f docker-compose.dev.yml up
 
 # Production — requires Traefik reverse proxy and populated .env
 docker compose up
 ```
 
-Both Dockerfiles (`apps/*/Dockerfile`) build with the **repo root as context** (`docker build -f apps/web/Dockerfile .`) so they can use the shared lockfile. Each has an allow-list `Dockerfile.dockerignore` next to it that limits the context to the workspace manifests and that app.
+Both Dockerfiles (`apps/*/Dockerfile`) build with the **repo root as context** (`docker build -f apps/web/Dockerfile .`) so they can use the shared lockfile. Each has an allow-list `Dockerfile.dockerignore` next to it that limits the context to the workspace manifests and that app; the dev images (`Dockerfile.dev`) have a `Dockerfile.dev.dockerignore` that sends only the manifests, since source is bind-mounted.
+
+On Windows, prefer `pnpm docker:dev` (`scripts/compose-dev.mjs`) to calling Compose directly from a shell whose cwd starts with a lower-case `c:` (VS Code, Git Bash): Compose v5 builds through buildx bake, which compares the context (`c:\...`) and Dockerfile (`C:\...`) paths case-sensitively and fails with `additional privileges requested: pass "--allow=fs.read=..."`. The wrapper passes `--project-directory` with an upper-case drive letter.
 
 ## Testing
 
@@ -52,7 +55,7 @@ Copy `.env.example` to `.env`. Required variables:
 
 | Variable | Where used | Notes |
 |---|---|---|
-| `STRAPI_API_TOKEN` | Next.js runtime + build | Create in Strapi Admin → Settings → API Tokens. Needs `find`/`findOne` on post, category, project, about, global. **Required at runtime** — ISR regenerates pages on the server |
+| `STRAPI_API_TOKEN` | Next.js runtime + build | Create in Strapi Admin → Settings → API Tokens. Needs `find`/`findOne` on post, category, project, about, global, homepage. **Required at runtime** — ISR regenerates pages on the server |
 | `STRAPI_INTERNAL_URL` | Next.js server | Docker internal URL (`http://strapi:1337`); falls back to `http://localhost:1337` |
 | `NEXT_PUBLIC_STRAPI_API_URL` | Next.js | Public Strapi URL, used for relative media URLs in metadata. Baked in at build time |
 | `NEXT_PUBLIC_GA_TRACKING_ID` | Next.js client-side | Baked in at build time; GA is omitted when unset |
@@ -85,12 +88,12 @@ Paths below are relative to `apps/web`.
 
 | Route | Content |
 |---|---|
-| `/` | Hero (with the three.js `Cubes`), featured projects, latest 6 posts |
+| `/` | Hero (CMS greeting/subheading, grid + dripping `MetaballEdge`, three.js `Cubes`), Now strip (role, working on, latest post, `availability`), project spotlight (first featured project large, next three compact), writing index (latest 8 posts, client-side category filter) |
 | `/blog/`, `/blog/page/[page]/` | Paginated post grid (9 per page, `POSTS_PER_PAGE`) |
 | `/category/[slug]/`, `.../page/[page]/` | Same grid filtered by category |
 | `/post/[slug]/` | Post with TOC, reading progress, prev/next; generated OG image |
 | `/projects/` | Project grid |
-| `/about/` | Bio, current position, socials |
+| `/about/` | Intro (portrait, position, résumé, socials), now card + bio, skills cards, toolbox chips |
 | `/rss.xml`, `/sitemap.xml`, `/robots.txt`, `/opengraph-image` | Feeds and SEO |
 
 `next.config.ts` keeps `trailingSlash: true` and `output: "standalone"`, with `outputFileTracingRoot` at the workspace root, so the standalone server is at `.next/standalone/apps/web/server.js`.
@@ -99,10 +102,10 @@ Paths below are relative to `apps/web`.
 
 - **`post`** (collection) — `title`, `description`, `slug`, `content` (Markdown), `published_date`, `cover`, `postHero` (media), `category` (relation)
 - **`category`** (collection) — `title`, `slug`, `description`, has `posts` inverse relation
-- **`project`** (collection) — `title`, `slug`, `summary`, `description`, `image`, `techStack` (repeatable `project.tech-item` component, `name`), `tech` (**legacy** JSON, read only when `techStack` is empty; accepts an array, a numeric-keyed object or a comma-separated string), `link` (live URL), `repoUrl`, `featured`, `order`
-- **`about`** (single type) — `header`, `body`, `image`, `github`, `linkedIn`, `resumeUrl`, `currentlyWorkingOn`, `currentPosition` (component)
+- **`project`** (collection) — `title`, `slug`, `summary`, `description`, `image`, `techStack` (repeatable `project.tech-item` component, `name`; exposed to components as `project.tech: string[]`), `link` (live URL), `repoUrl`, `featured`, `order`. The old `tech` JSON field was migrated into `techStack` by `apps/cms/database/migrations/2026.11.18T00.00.00.project-tech-to-techstack.js` (Strapi runs user migrations before the schema sync drops the column)
+- **`about`** (single type) — every string on `/about/` comes from here: `eyebrow`, `header`, `body` (Markdown), `image` (alt from its alternative text), `github`, `linkedIn`, `resumeUrl`, `resumeLabel`, `currentPosition` (component), `nowHeading` + `currentlyWorkingOn`, `skillsHeading` + `skills` (repeatable: `name`, `description`, `icon`), `toolboxHeading` + `tech` (repeatable: `name`, `link`, `icon`). Labels fall back to their schema defaults when blank. Icons come from the vendored fontawesome field (`"fa-solid code"`) and render server-side through `components/fa-icon.tsx` (react-icons/fa6); unknown icons render nothing
 - **`global`** (single type) — `SiteName`, `favicon`, `defaultSeo` (component: `MetaTitle`, `MetaDescription`, `shareImage`)
-- **`homepage`** (single type) — currently unused
+- **`homepage`** (single type) — hero copy: `heroGreeting` (default "Hi, I'm"), `heroSubheading` (hidden when empty), `availability` (Now strip "Open to" cell, hidden when empty). Fetched by `getHomepage()`, tag `homepage`
 
 ### UI
 

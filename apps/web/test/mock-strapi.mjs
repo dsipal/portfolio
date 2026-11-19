@@ -7,12 +7,13 @@ import { createServer } from "node:http";
 import qs from "qs";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
-const [categories, posts, projects, about, global] = [
+const [categories, posts, projects, about, global, homepage] = [
   "categories",
   "posts",
   "projects",
   "about",
   "global",
+  "homepage",
 ].map(load);
 
 function paginate(list, { page = 1, pageSize = 25 } = {}) {
@@ -46,6 +47,7 @@ const routes = {
     paginate(q.filters?.featured ? projects.filter((p) => p.featured) : projects, q.pagination),
   "/api/about": () => ({ data: about, meta: {} }),
   "/api/global": () => ({ data: global, meta: {} }),
+  "/api/homepage": () => ({ data: homepage, meta: {} }),
 };
 
 const port = Number(process.argv[2] ?? process.env.PORT ?? 1338);

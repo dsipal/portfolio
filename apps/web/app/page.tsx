@@ -3,53 +3,55 @@ import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/container";
 import { Hero } from "@/components/hero";
-import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
-import { PostGrid } from "@/components/post-grid";
-import { ProjectCard } from "@/components/project-card";
+import { FadeIn } from "@/components/motion";
+import { NowStrip } from "@/components/now-strip";
+import { ProjectSpotlight } from "@/components/project-spotlight";
 import { SocialLinks } from "@/components/social-links";
-import { getAbout, getPosts, getProjects } from "@/lib/strapi";
+import { WritingIndex } from "@/components/writing-index";
+import { getAbout, getHomepage, getPosts, getProjects } from "@/lib/strapi";
 import { getSiteInfo } from "@/lib/site";
 
 export const revalidate = 60;
 
+/** Posts listed in the writing index */
+const LATEST_POSTS = 8;
+
 export default async function HomePage() {
-  const [{ name }, about, { posts }, projects] = await Promise.all([
+  const [{ name }, homepage, about, { posts }, projects] = await Promise.all([
     getSiteInfo(),
+    getHomepage(),
     getAbout(),
-    getPosts({ pageSize: 6 }),
+    getPosts({ pageSize: LATEST_POSTS }),
     getProjects({ featured: true }),
   ]);
-
-  const position = about?.currentPosition;
-  const role =
-    position?.positionTitle && position.companyTitle
-      ? `${position.positionTitle} at ${position.companyTitle}`
-      : (position?.positionTitle ?? null);
 
   return (
     <>
       <Hero
         name={name}
-        role={role}
+        greeting={homepage?.heroGreeting ?? "Hi, I'm"}
+        subheading={homepage?.heroSubheading ?? null}
         socials={<SocialLinks about={about} />}
       />
 
+      <NowStrip about={about} latestPost={posts[0]} availability={homepage?.availability ?? null} />
+
       {projects.length > 0 && (
-        <Container className="py-12">
-          <SectionHeading title="Featured projects" href="/projects/" linkLabel="All projects" />
-          <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.slice(0, 3).map((project) => (
-              <StaggerItem key={project.id}>
-                <ProjectCard project={project} />
-              </StaggerItem>
-            ))}
-          </Stagger>
+        <Container className="pt-16 pb-6 sm:pt-20">
+          <SectionHeading
+            title={projects.length > 1 ? "Featured projects" : "Featured project"}
+            href="/projects/"
+            linkLabel="All projects"
+          />
+          <ProjectSpotlight projects={projects} />
         </Container>
       )}
 
-      <Container className="py-12">
+      <Container className="py-16 sm:py-20">
         <SectionHeading title="Latest writing" href="/blog/" linkLabel="All posts" />
-        <PostGrid posts={posts} />
+        <FadeIn>
+          <WritingIndex posts={posts} />
+        </FadeIn>
       </Container>
     </>
   );

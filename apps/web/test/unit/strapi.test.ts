@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getAbout, getPosts, getProjects } from "@/lib/strapi";
+import { getAbout, getHomepage, getPosts, getProjects } from "@/lib/strapi";
 
 const respond = (body: unknown, status = 200) =>
   vi.fn(async () => new Response(JSON.stringify(body), { status }));
@@ -37,19 +37,30 @@ describe("lib/strapi", () => {
     expect(posts[0]).toMatchObject({ readingTime: 2 });
     expect(posts[0]).not.toHaveProperty("content");
     expect(pagination.total).toBe(2);
-    expect(errors).toHaveBeenCalledWith(expect.stringContaining('[strapi] invalid post "Valid" skipped: slug'));
+    expect(errors).toHaveBeenCalledWith(
+      expect.stringContaining('[strapi] invalid post "Valid" skipped: slug'),
+    );
   });
 
-  it("normalizes malformed tech on projects", async () => {
+  it("populates techStack and drops blank tech names on projects", async () => {
+    const fetch = respond({
+      data: [{ id: 1, documentId: "p", title: "API", techStack: [{ name: " NestJS " }, { name: "" }] }],
+      meta: {},
+    });
+    vi.stubGlobal("fetch", fetch);
+    const [project] = await getProjects();
+    expect(project.tech).toEqual(["NestJS"]);
+    expect(decodeURIComponent(String((fetch.mock.calls[0] as unknown[])[0]))).toContain(
+      "populate[techStack]=true",
+    );
+  });
+
+  it("reads the hero copy from the homepage single type", async () => {
     vi.stubGlobal(
       "fetch",
-      respond({
-        data: [{ id: 1, documentId: "p", title: "API", tech: { 0: "NestJS", 1: "Postgres" } }],
-        meta: {},
-      }),
+      respond({ data: { id: 1, documentId: "h", heroGreeting: "Hey, I'm", heroSubheading: "Builder." } }),
     );
-    const [project] = await getProjects();
-    expect(project.tech).toEqual(["NestJS", "Postgres"]);
+    expect(await getHomepage()).toMatchObject({ heroGreeting: "Hey, I'm", heroSubheading: "Builder." });
   });
 
   it("returns null for an unpublished single type (404)", async () => {

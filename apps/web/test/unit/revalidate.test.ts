@@ -39,7 +39,7 @@ describe("POST /api/revalidate", () => {
   it("expires every tag for unknown models", async () => {
     await POST(request({ model: "something-else" }, "Bearer s3cret"));
     expect(revalidateTag.mock.calls.map((c) => c[0]).sort()).toEqual(
-      ["about", "categories", "global", "posts", "projects"].sort(),
+      ["about", "categories", "global", "homepage", "posts", "projects"].sort(),
     );
   });
 });

@@ -6,6 +6,7 @@ import {
   about,
   category,
   global,
+  homepage,
   pagination as paginationSchema,
   post,
   postLink,
@@ -29,6 +30,7 @@ export const TAGS = {
   projects: "projects",
   about: "about",
   global: "global",
+  homepage: "homepage",
 } as const;
 
 type Tag = (typeof TAGS)[keyof typeof TAGS];
@@ -106,7 +108,10 @@ async function fetchList<S extends z.ZodType>(
   for (const entry of raw) {
     const parsed = schema.safeParse(entry);
     if (parsed.success) items.push(parsed.data);
-    else console.error(`[strapi] invalid ${label} "${entryName(entry)}" skipped: ${describeIssue(parsed.error)}`);
+    else
+      console.error(
+        `[strapi] invalid ${label} "${entryName(entry)}" skipped: ${describeIssue(parsed.error)}`,
+      );
   }
 
   const pagination = paginationSchema.safeParse(res?.meta?.pagination);
@@ -136,7 +141,15 @@ const emptyPagination = (pageSize: number): Pagination => ({
   total: 0,
 });
 
-const postListFields = ["title", "slug", "description", "content", "published_date", "publishedAt", "updatedAt"];
+const postListFields = [
+  "title",
+  "slug",
+  "description",
+  "content",
+  "published_date",
+  "publishedAt",
+  "updatedAt",
+];
 const postListPopulate = {
   cover: true,
   category: { fields: ["title", "slug"] },
@@ -259,9 +272,7 @@ export async function getProjects({ featured }: { featured?: boolean } = {}) {
     "project",
     "/projects",
     {
-      // "*" populates media and components without failing on attributes an
-      // older CMS doesn't have yet (e.g. techStack during a rollout)
-      populate: "*",
+      populate: { image: true, techStack: true },
       filters: featured ? { featured: { $eq: true } } : undefined,
       sort: ["order:asc", "title:asc"],
       pagination: { page: 1, pageSize: 100 },
@@ -273,7 +284,17 @@ export async function getProjects({ featured }: { featured?: boolean } = {}) {
 }
 
 export const getAbout = cache(async () =>
-  fetchSingle("about", "/about", { populate: { image: true, currentPosition: true } }, [TAGS.about], about),
+  fetchSingle(
+    "about",
+    "/about",
+    { populate: { image: true, currentPosition: true, skills: true, tech: true } },
+    [TAGS.about],
+    about,
+  ),
+);
+
+export const getHomepage = cache(async () =>
+  fetchSingle("homepage", "/homepage", {}, [TAGS.homepage], homepage),
 );
 
 export const getGlobal = cache(async () =>

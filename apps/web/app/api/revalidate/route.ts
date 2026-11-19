@@ -9,6 +9,7 @@ const MODEL_TAGS: Record<string, string[]> = {
   project: [TAGS.projects],
   about: [TAGS.about],
   global: [TAGS.global],
+  homepage: [TAGS.homepage],
 };
 
 function authorized(header: string | null) {

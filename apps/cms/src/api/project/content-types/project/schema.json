@@ -41,9 +41,6 @@
       "repeatable": true,
       "component": "project.tech-item"
     },
-    "tech": {
-      "type": "json"
-    },
     "link": {
       "type": "string"
     },
