@@ -84,15 +84,34 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
       - "traefik.http.services.${TRAEFIK_PREFIX:-portfolio}-ghost.loadbalancer.server.port=2368"
-      # HTTPS router
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.rule=Host(`${GHOST_DOMAIN}`)"
+      # Ghost is headless: only the admin and APIs (/ghost), uploads (/content)
+      # and Ghost's internal endpoints (/.ghost) are served. Every other path
+      # (the theme frontend) redirects to the same path on the portfolio.
+      - "traefik.http.middlewares.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.redirectregex.regex=^https?://[^/]+/(.*)"
+      - "traefik.http.middlewares.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.redirectregex.replacement=https://${PORTFOLIO_DOMAIN}/$${1}"
+      - "traefik.http.middlewares.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.redirectregex.permanent=false"
+      # HTTPS routers
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.rule=Host(`${GHOST_DOMAIN}`) && (PathPrefix(`/ghost`) || PathPrefix(`/content`) || PathPrefix(`/.ghost`))"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.priority=20"
       - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT:-websecure}"
       - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
       - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.service=${TRAEFIK_PREFIX:-portfolio}-ghost"
-      # HTTP router (no redirect — Cloudflare tunnel connects on HTTP)
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.rule=Host(`${GHOST_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.rule=Host(`${GHOST_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.priority=10"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.middlewares=${TRAEFIK_PREFIX:-portfolio}-ghost-frontend"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend.service=${TRAEFIK_PREFIX:-portfolio}-ghost"
+      # HTTP routers (no redirect to https — Cloudflare tunnel connects on HTTP)
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.rule=Host(`${GHOST_DOMAIN}`) && (PathPrefix(`/ghost`) || PathPrefix(`/content`) || PathPrefix(`/.ghost`))"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.priority=20"
       - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.entrypoints=${TRAEFIK_HTTP_ENTRYPOINT:-web}"
       - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.service=${TRAEFIK_PREFIX:-portfolio}-ghost"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend-http.rule=Host(`${GHOST_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend-http.priority=10"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend-http.entrypoints=${TRAEFIK_HTTP_ENTRYPOINT:-web}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend-http.middlewares=${TRAEFIK_PREFIX:-portfolio}-ghost-frontend"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-frontend-http.service=${TRAEFIK_PREFIX:-portfolio}-ghost"
 
   portfolio:
     # NEXT_PUBLIC_* values are baked into this image at build time in CI
