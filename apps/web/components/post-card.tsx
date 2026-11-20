@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRightIcon, ClockIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { StrapiImage } from "@/components/strapi-image";
+import { CmsImage } from "@/components/cms-image";
 import { formatDate } from "@/lib/utils";
 import type { PostSummary } from "@/lib/schemas";
 
@@ -10,7 +10,7 @@ import type { PostSummary } from "@/lib/schemas";
  * rather than a nested link, which would be invalid inside <a>.
  */
 export function PostCard({ post, priority = false }: { post: PostSummary; priority?: boolean }) {
-  const date = post.published_date ?? post.publishedAt;
+  const date = post.date;
 
   return (
     <Link
@@ -19,7 +19,7 @@ export function PostCard({ post, priority = false }: { post: PostSummary; priori
     >
       <div className="relative aspect-[16/9] overflow-hidden bg-muted">
         {post.cover ? (
-          <StrapiImage
+          <CmsImage
             image={post.cover}
             fill
             priority={priority}

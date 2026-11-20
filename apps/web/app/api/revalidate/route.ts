@@ -1,36 +1,36 @@
 import { revalidateTag } from "next/cache";
-import { timingSafeEqual } from "node:crypto";
-import { TAGS } from "@/lib/strapi";
+import { TAGS } from "@/lib/ghost";
+import { verifyGhostSignature } from "@/lib/webhook";
 
-/** Strapi model → cache tags to expire when an entry of that model changes */
-const MODEL_TAGS: Record<string, string[]> = {
+/** Ghost webhook payload key → cache tags to expire when a resource of that kind changes */
+const RESOURCE_TAGS: Record<string, string[]> = {
   post: [TAGS.posts],
-  category: [TAGS.categories, TAGS.posts],
-  project: [TAGS.projects],
-  about: [TAGS.about],
-  global: [TAGS.global],
-  homepage: [TAGS.homepage],
+  // Projects, the about page and the homepage are all Ghost pages
+  page: [TAGS.projects, TAGS.about, TAGS.homepage],
+  tag: [TAGS.categories, TAGS.posts],
 };
 
-function authorized(header: string | null) {
-  const secret = process.env.REVALIDATE_SECRET;
-  if (!secret || !header) return false;
-  const a = Buffer.from(header);
-  const b = Buffer.from(`Bearer ${secret}`);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
 /**
- * Strapi webhook target (Settings → Webhooks). Send entry create/update/
- * delete/publish/unpublish events with header `Authorization: Bearer <REVALIDATE_SECRET>`.
+ * Ghost webhook target (Settings → Integrations → custom integration →
+ * webhooks), with REVALIDATE_SECRET as the webhook secret. Point the post,
+ * page, tag and "site changed" events here.
  */
 export async function POST(request: Request) {
-  if (!authorized(request.headers.get("authorization"))) {
+  const body = await request.text();
+  if (!verifyGhostSignature(request.headers.get("x-ghost-signature"), body, process.env.REVALIDATE_SECRET)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { model?: string };
-  const tags = (body.model && MODEL_TAGS[body.model]) || Object.values(TAGS);
+  let payload: unknown = null;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    // An empty or non-JSON body revalidates everything
+  }
+  const resource =
+    payload && typeof payload === "object" ? Object.keys(payload).find((key) => key in RESOURCE_TAGS) : undefined;
+  // Anything else (site.changed) can touch every page
+  const tags = (resource && RESOURCE_TAGS[resource]) || Object.values(TAGS);
   for (const tag of tags) revalidateTag(tag, { expire: 0 });
 
   return Response.json({ revalidated: tags });

@@ -12,10 +12,7 @@ RUN corepack enable
 FROM base AS deps
 WORKDIR /repo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-# Every workspace manifest must exist for a frozen-lockfile install
 COPY apps/web/package.json apps/web/
-COPY apps/cms/package.json apps/cms/
-COPY apps/cms/src/plugins/fontawesome-strapi/package.json apps/cms/src/plugins/fontawesome-strapi/
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --filter web...
 
@@ -24,18 +21,15 @@ FROM deps AS builder
 COPY apps/web apps/web
 WORKDIR /repo/apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_STRAPI_API_URL
 ARG NEXT_PUBLIC_GA_TRACKING_ID
-ENV NEXT_PUBLIC_STRAPI_API_URL=$NEXT_PUBLIC_STRAPI_API_URL
 ENV NEXT_PUBLIC_GA_TRACKING_ID=$NEXT_PUBLIC_GA_TRACKING_ID
-# Strapi URL reachable from the build environment, used to prerender pages with
-# real content. The compose "strapi" host doesn't exist at build time, so CI
-# passes the public URL. If unset/unreachable, pages build empty and ISR fills
-# them in at runtime.
-ARG STRAPI_BUILD_URL
-# The API token is passed as a BuildKit secret so it never lands in an image layer.
-RUN --mount=type=secret,id=strapi_api_token,env=STRAPI_API_TOKEN \
-    STRAPI_INTERNAL_URL="${STRAPI_BUILD_URL:-http://localhost:1337}" pnpm exec next build
+# Ghost's public URL, used to prerender pages with real content. The compose
+# "ghost" host doesn't exist at build time, so the build reads from the public
+# URL. If unset/unreachable, pages build empty and ISR fills them in at runtime.
+ARG GHOST_URL=http://localhost:2368
+# The Content API key is passed as a BuildKit secret so it never lands in an image layer.
+RUN --mount=type=secret,id=ghost_content_api_key,env=GHOST_CONTENT_API_KEY \
+    GHOST_URL="$GHOST_URL" GHOST_INTERNAL_URL="$GHOST_URL" pnpm exec next build
 
 # --- runner stage ---
 FROM node:24-alpine AS runner

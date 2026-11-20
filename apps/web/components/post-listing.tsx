@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Container, PageHeader } from "@/components/container";
 import { PostGrid } from "@/components/post-grid";
 import { PostsPagination } from "@/components/posts-pagination";
-import { getPosts } from "@/lib/strapi";
+import { getPosts } from "@/lib/ghost";
 
 /** Parses a /page/[page]/ segment; anything but an integer ≥ 2 is a 404 (page 1 lives at the base path) */
 export function parsePage(raw: string) {

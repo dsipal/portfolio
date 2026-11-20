@@ -3,9 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = 3100;
 
 /**
- * Smoke tests against a production build served with mock Strapi content.
+ * Smoke tests against a production build served with mock Ghost content.
  * Build first, with the mock running:
- *   node test/mock-strapi.mjs & STRAPI_INTERNAL_URL=http://localhost:1338 yarn build
+ *   node test/mock-ghost.mjs & GHOST_INTERNAL_URL=http://localhost:1338 GHOST_CONTENT_API_KEY=test pnpm exec next build
  * Set PW_CHANNEL=msedge (or chrome) to use an installed browser locally.
  */
 export default defineConfig({
@@ -25,7 +25,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "node test/mock-strapi.mjs 1338",
+      command: "node test/mock-ghost.mjs 1338",
       port: 1338,
       reuseExistingServer: true,
     },
@@ -33,7 +33,11 @@ export default defineConfig({
       command: `npx next start -p ${PORT}`,
       port: PORT,
       reuseExistingServer: !process.env.CI,
-      env: { STRAPI_INTERNAL_URL: "http://localhost:1338", REVALIDATE_SECRET: "e2e-secret" },
+      env: {
+        GHOST_INTERNAL_URL: "http://localhost:1338",
+        GHOST_CONTENT_API_KEY: "test",
+        REVALIDATE_SECRET: "e2e-secret",
+      },
     },
   ],
 });

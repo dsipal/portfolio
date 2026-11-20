@@ -4,8 +4,8 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { getAbout, getCategories, getSearchIndex } from "@/lib/strapi";
-import { getStrapiMedia } from "@/lib/media";
+import { getAbout, getCategories, getSearchIndex } from "@/lib/ghost";
+import { getCmsMedia } from "@/lib/media";
 import { SITE_URL, getSiteInfo } from "@/lib/site";
 import { pastelScript } from "@/lib/pastel";
 import "./globals.css";
@@ -17,7 +17,7 @@ export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { name, description, global } = await getSiteInfo();
-  const favicon = getStrapiMedia(global?.favicon, { public: true });
+  const favicon = getCmsMedia(global?.favicon, { public: true });
 
   return {
     metadataBase: new URL(SITE_URL),

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { signGhostPayload } from "../lib/webhook";
 
 const ok = [
   "/",
@@ -37,16 +38,18 @@ test.describe("route status", () => {
     });
   }
 
-  test("titles use the Strapi site name", async ({ page }) => {
+  test("titles use the Ghost site title", async ({ page }) => {
     await page.goto("/post/post-3/");
     await expect(page).toHaveTitle("Post number 3: Postgres tuning | devin sipal");
   });
 
-  test("revalidate webhook requires the secret", async ({ request }) => {
-    expect((await request.post("/api/revalidate/", { data: { model: "post" } })).status()).toBe(401);
+  test("revalidate webhook requires a Ghost signature", async ({ request }) => {
+    const body = JSON.stringify({ post: { current: { slug: "post-3" } } });
+    const headers = { "Content-Type": "application/json" };
+    expect((await request.post("/api/revalidate/", { data: body, headers })).status()).toBe(401);
     const res = await request.post("/api/revalidate/", {
-      data: { model: "post" },
-      headers: { Authorization: "Bearer e2e-secret" },
+      data: body,
+      headers: { ...headers, "X-Ghost-Signature": signGhostPayload(body, "e2e-secret") },
     });
     expect(res.status()).toBe(200);
   });

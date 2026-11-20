@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { ArrowUpRightIcon, BriefcaseIcon, FileTextIcon, MailIcon } from "lucide-react";
 import { Container } from "@/components/container";
 import { FaIcon, resolveFaIcon } from "@/components/fa-icon";
-import { Markdown } from "@/components/markdown";
+import { HtmlContent, Markdown } from "@/components/markdown";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
 import { SocialLinks } from "@/components/social-links";
-import { StrapiImage } from "@/components/strapi-image";
+import { CmsImage } from "@/components/cms-image";
 import { Button } from "@/components/ui/button";
 import type { About } from "@/lib/schemas";
-import { getAbout } from "@/lib/strapi";
+import { getAbout } from "@/lib/ghost";
 import { cn, formatDate } from "@/lib/utils";
 
 export const revalidate = 60;
@@ -64,7 +64,7 @@ export default async function AboutPage() {
           )}
           {about.body && (
             <FadeIn delay={0.1}>
-              <Markdown className="prose-lg max-w-[68ch]">{about.body}</Markdown>
+              <HtmlContent className="prose-lg max-w-[68ch]" html={about.body} />
             </FadeIn>
           )}
         </Container>
@@ -232,7 +232,7 @@ function Intro({ about }: { about: About }) {
                 aria-hidden
                 className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-1/40 to-brand-3/30 blur-2xl"
               />
-              <StrapiImage
+              <CmsImage
                 image={about.image}
                 priority
                 sizes="(min-width: 768px) 380px, 80vw"

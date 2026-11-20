@@ -1,4 +1,4 @@
-import { getPosts } from "@/lib/strapi";
+import { getPosts } from "@/lib/ghost";
 import { SITE_URL, getSiteInfo } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -12,7 +12,7 @@ export async function GET() {
   const items = posts
     .map((post) => {
       const link = `${SITE_URL}/post/${post.slug}/`;
-      const date = new Date(post.published_date ?? post.publishedAt).toUTCString();
+      const date = new Date(post.date).toUTCString();
       return `    <item>
       <title>${escape(post.title)}</title>
       <link>${link}</link>

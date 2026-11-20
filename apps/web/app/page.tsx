@@ -8,7 +8,7 @@ import { NowStrip } from "@/components/now-strip";
 import { ProjectSpotlight } from "@/components/project-spotlight";
 import { SocialLinks } from "@/components/social-links";
 import { WritingIndex } from "@/components/writing-index";
-import { getAbout, getHomepage, getPosts, getProjects } from "@/lib/strapi";
+import { getAbout, getHomepage, getPosts, getProjects } from "@/lib/ghost";
 import { getSiteInfo } from "@/lib/site";
 
 export const revalidate = 60;

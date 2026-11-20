@@ -13,8 +13,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "localhost" },
-      { protocol: "http", hostname: "strapi" },
-      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "http", hostname: "ghost" },
       { protocol: "https", hostname: "*.devinsipal.com" },
     ],
   },

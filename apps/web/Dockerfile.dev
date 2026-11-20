@@ -6,8 +6,6 @@ RUN corepack enable
 WORKDIR /repo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/
-COPY apps/cms/package.json apps/cms/
-COPY apps/cms/src/plugins/fontawesome-strapi/package.json apps/cms/src/plugins/fontawesome-strapi/
 RUN pnpm install --frozen-lockfile --filter web...
 WORKDIR /repo/apps/web
 EXPOSE 3000

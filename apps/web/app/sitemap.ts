@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPostSlugs, getCategories } from "@/lib/strapi";
+import { getAllPostSlugs, getCategories } from "@/lib/ghost";
 import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 3600;

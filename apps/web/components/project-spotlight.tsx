@@ -3,7 +3,7 @@ import { FaGithub } from "react-icons/fa";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
-import { StrapiImage } from "@/components/strapi-image";
+import { CmsImage } from "@/components/cms-image";
 import type { Project } from "@/lib/schemas";
 
 /**
@@ -21,7 +21,7 @@ export function ProjectSpotlight({ projects }: { projects: Project[] }) {
         <article className="group grid overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm transition-colors duration-300 hover:border-brand/40 md:grid-cols-[1.25fr_1fr]">
           <div className="relative aspect-[16/10] overflow-hidden bg-muted md:aspect-auto md:min-h-[22rem]">
             {spotlight.image ? (
-              <StrapiImage
+              <CmsImage
                 image={spotlight.image}
                 fill
                 sizes="(min-width: 1024px) 640px, (min-width: 768px) 55vw, 100vw"
@@ -39,11 +39,7 @@ export function ProjectSpotlight({ projects }: { projects: Project[] }) {
             <h3 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
               {spotlight.title}
             </h3>
-            {(spotlight.summary || spotlight.description) && (
-              <p className="text-pretty text-muted-foreground">
-                {spotlight.summary ?? spotlight.description}
-              </p>
-            )}
+            {spotlight.summary && <p className="text-pretty text-muted-foreground">{spotlight.summary}</p>}
             {spotlight.tech.length > 0 && (
               <ul className="flex flex-wrap gap-1.5" aria-label="Technologies">
                 {spotlight.tech.map((t) => (
@@ -90,7 +86,7 @@ export function ProjectSpotlight({ projects }: { projects: Project[] }) {
               >
                 <span className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                   {project.image ? (
-                    <StrapiImage image={project.image} fill sizes="56px" className="object-cover" />
+                    <CmsImage image={project.image} fill sizes="56px" className="object-cover" />
                   ) : (
                     <Monogram title={project.title} className="text-xl" />
                   )}

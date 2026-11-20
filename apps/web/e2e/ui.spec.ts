@@ -113,11 +113,11 @@ test("theme toggle switches between light and dark", async ({ page }) => {
   await expect(html).toHaveClass(wasDark ? /light/ : /dark/);
 });
 
-test("project tech badges render from techStack", async ({ page }) => {
+test("project tech badges render from page data", async ({ page }) => {
   await page.goto("/projects/");
   const badges = (title: string) =>
     page.locator("article", { has: page.getByRole("heading", { name: title }) }).getByRole("listitem");
-  await expect(badges("Portfolio")).toHaveText(["Next.js", "Strapi", "Docker"]);
+  await expect(badges("Portfolio")).toHaveText(["Next.js", "Ghost", "Docker"]);
   // Blank items are dropped and names trimmed
   await expect(badges("API service")).toHaveText(["NestJS", "TypeScript", "Postgres"]);
 });
@@ -139,6 +139,6 @@ test("about page renders CMS sections", async ({ page }) => {
   await expect(page.getByRole("main").getByRole("link", { name: "Résumé" })).toHaveCount(1);
   await expect(page.getByRole("main").getByRole("link", { name: "Cover letter" })).toHaveAttribute(
     "href",
-    /\/uploads\/cover_letter\.pdf$/,
+    /\/content\/files\/cover_letter\.pdf$/,
   );
 });

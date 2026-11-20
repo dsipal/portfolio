@@ -13,7 +13,7 @@ export function SiteFooter({ siteName, about }: { siteName: string; about: About
             <span className="text-brand">.</span>
           </Link>
           <p className="mt-1 text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {siteName}. Built with Next.js &amp; Strapi.
+            © {new Date().getFullYear()} {siteName}. Built with Next.js &amp; Ghost.
           </p>
         </div>
         <div className="flex items-center gap-1">

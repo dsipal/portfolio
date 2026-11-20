@@ -1,9 +1,0 @@
-# Context is the repo root. The dev image only installs dependencies (source is
-# bind-mounted by docker-compose.dev.yml), so it needs just the manifests.
-*
-!package.json
-!pnpm-lock.yaml
-!pnpm-workspace.yaml
-!apps/web/package.json
-!apps/cms/package.json
-!apps/cms/src/plugins/fontawesome-strapi/package.json

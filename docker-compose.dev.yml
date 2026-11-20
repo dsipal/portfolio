@@ -5,54 +5,22 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data_dev:
-  strapi_uploads:
+  ghost_content_dev:
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data_dev:/var/lib/postgresql/data
-    networks:
-      - internal
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  strapi:
-    build:
-      context: .
-      dockerfile: apps/cms/Dockerfile.dev
-    depends_on:
-      postgres:
-        condition: service_healthy
+  # Ghost in development mode keeps its data in SQLite inside the content
+  # volume, so the dev stack needs no database container
+  ghost:
+    image: ghost:6-alpine
     environment:
       NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"
-      HOST: 0.0.0.0
-      PORT: 1337
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      APP_KEYS: ${APP_KEYS}
-      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
-      API_TOKEN_SALT: ${API_TOKEN_SALT}
-      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
-      USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET}
+      url: http://localhost:2368
+      # No mail in dev: skip the emailed sign-in codes for new devices
+      security__staffDeviceVerification: "false"
     volumes:
-      - ./apps/cms:/opt/app/apps/cms
-      - /opt/app/apps/cms/node_modules
-      - strapi_uploads:/opt/app/apps/cms/public/uploads
+      - ghost_content_dev:/var/lib/ghost/content
     ports:
-      - "1337:1337"
+      - "2368:2368"
     networks:
       - internal
 
@@ -61,11 +29,11 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile.dev
     depends_on:
-      - strapi
+      - ghost
     environment:
-      NEXT_PUBLIC_STRAPI_API_URL: http://localhost:1337
-      STRAPI_INTERNAL_URL: http://strapi:1337
-      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      GHOST_URL: http://localhost:2368
+      GHOST_INTERNAL_URL: http://ghost:2368
+      GHOST_CONTENT_API_KEY: ${GHOST_CONTENT_API_KEY}
       SITE_URL: http://localhost:3000
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-dev}
       # File events don't propagate through Windows/macOS bind mounts

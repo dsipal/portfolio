@@ -1,6 +1,6 @@
 name: portfolio
 
-# Production stack. Images are built and pushed to GHCR by
+# Production stack. The web image is built and pushed to GHCR by
 # .github/workflows/build.yml; the host's Watchtower pulls new :latest images
 # and recreates the labelled containers. Nothing is built on the server.
 
@@ -12,60 +12,70 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  mysql_data:
+  ghost_content:
 
-x-postgres-env: &postgres-env
-  POSTGRES_DB: ${POSTGRES_DB:-strapi}
-  POSTGRES_USER: ${POSTGRES_USER:-strapi}
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+x-mysql-env: &mysql-env
+  MYSQL_DATABASE: ${MYSQL_DATABASE:-ghost}
+  MYSQL_USER: ${MYSQL_USER:-ghost}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
 
 services:
-  postgres:
-    image: postgres:16-alpine
+  mysql:
+    image: mysql:8.4
     restart: unless-stopped
     environment:
-      <<: *postgres-env
+      <<: *mysql-env
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     networks:
       - internal
     labels:
       # Never auto-restart the database
       - "com.centurylinklabs.watchtower.enable=false"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
-  strapi:
-    image: ${IMAGE_REGISTRY:-ghcr.io/dsipal}/portfolio-strapi:${IMAGE_TAG:-latest}
+  ghost:
+    # Pinned to the major version: Watchtower applies minor/patch updates only
+    image: ghost:6-alpine
     restart: unless-stopped
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:1337/_health',(r)=>process.exit(r.statusCode===204?0:1)).on('error',()=>process.exit(1))"]
+      # Ghost redirects plain http to its https url unless the proxy says the request was secure
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--header", "X-Forwarded-Proto: https", "http://127.0.0.1:2368/ghost/api/admin/site/"]
       interval: 10s
       timeout: 5s
       retries: 6
       start_period: 60s
     environment:
-      <<: *postgres-env
       NODE_ENV: production
-      HOST: 0.0.0.0
-      PORT: 1337
-      PUBLIC_URL: https://${STRAPI_DOMAIN:?STRAPI_DOMAIN is required}
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      APP_KEYS: ${APP_KEYS:?APP_KEYS is required}
-      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:?ADMIN_JWT_SECRET is required}
-      API_TOKEN_SALT: ${API_TOKEN_SALT:?API_TOKEN_SALT is required}
-      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT:?TRANSFER_TOKEN_SALT is required}
-      USERS_PERMISSIONS_JWT_SECRET: ${USERS_PERMISSIONS_JWT_SECRET:?USERS_PERMISSIONS_JWT_SECRET is required}
-      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
-      CLOUDINARY_KEY: ${CLOUDINARY_KEY}
-      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+      url: https://${GHOST_DOMAIN:?GHOST_DOMAIN is required}
+      database__client: mysql
+      database__connection__host: mysql
+      database__connection__port: 3306
+      database__connection__user: ${MYSQL_USER:-ghost}
+      database__connection__password: ${MYSQL_PASSWORD}
+      database__connection__database: ${MYSQL_DATABASE:-ghost}
+      # Ghost emails staff sign-in codes and invites; without SMTP set, turn off
+      # new-device verification (GHOST_STAFF_DEVICE_VERIFICATION=false)
+      security__staffDeviceVerification: ${GHOST_STAFF_DEVICE_VERIFICATION:-true}
+      mail__transport: SMTP
+      mail__from: ${GHOST_MAIL_FROM:-}
+      mail__options__host: ${GHOST_SMTP_HOST:-}
+      mail__options__port: ${GHOST_SMTP_PORT:-587}
+      mail__options__auth__user: ${GHOST_SMTP_USER:-}
+      mail__options__auth__pass: ${GHOST_SMTP_PASSWORD:-}
+    volumes:
+      # Uploaded images and files, themes and logs; back this up with the database
+      - ghost_content:/var/lib/ghost/content
     networks:
       - traefik_network
       - internal
@@ -73,27 +83,28 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
-      - "traefik.http.services.${TRAEFIK_PREFIX:-portfolio}-strapi.loadbalancer.server.port=1337"
+      - "traefik.http.services.${TRAEFIK_PREFIX:-portfolio}-ghost.loadbalancer.server.port=2368"
       # HTTPS router
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.rule=Host(`${STRAPI_DOMAIN}`)"
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT:-websecure}"
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi.service=${TRAEFIK_PREFIX:-portfolio}-strapi"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.rule=Host(`${GHOST_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost.service=${TRAEFIK_PREFIX:-portfolio}-ghost"
       # HTTP router (no redirect — Cloudflare tunnel connects on HTTP)
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi-http.rule=Host(`${STRAPI_DOMAIN}`)"
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi-http.entrypoints=${TRAEFIK_HTTP_ENTRYPOINT:-web}"
-      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-strapi-http.service=${TRAEFIK_PREFIX:-portfolio}-strapi"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.rule=Host(`${GHOST_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.entrypoints=${TRAEFIK_HTTP_ENTRYPOINT:-web}"
+      - "traefik.http.routers.${TRAEFIK_PREFIX:-portfolio}-ghost-http.service=${TRAEFIK_PREFIX:-portfolio}-ghost"
 
   portfolio:
     # NEXT_PUBLIC_* values are baked into this image at build time in CI
     image: ${IMAGE_REGISTRY:-ghcr.io/dsipal}/portfolio-web:${IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
-      strapi:
+      ghost:
         condition: service_healthy
     environment:
-      STRAPI_INTERNAL_URL: http://strapi:1337
-      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      GHOST_URL: https://${GHOST_DOMAIN}
+      GHOST_INTERNAL_URL: http://ghost:2368
+      GHOST_CONTENT_API_KEY: ${GHOST_CONTENT_API_KEY:?GHOST_CONTENT_API_KEY is required}
       SITE_URL: https://${PORTFOLIO_DOMAIN}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     networks:

@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StrapiImage } from "@/components/strapi-image";
+import { CmsImage } from "@/components/cms-image";
 import type { Project } from "@/lib/schemas";
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -12,7 +12,7 @@ export function ProjectCard({ project }: { project: Project }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg hover:shadow-brand/5">
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {project.image ? (
-          <StrapiImage
+          <CmsImage
             image={project.image}
             fill
             sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
