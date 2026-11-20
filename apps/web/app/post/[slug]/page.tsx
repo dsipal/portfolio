@@ -5,11 +5,12 @@ import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon, ClockIcon } from "lucide-r
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/container";
 import { FadeIn } from "@/components/motion";
-import { HtmlContent } from "@/components/markdown";
+import { Markdown } from "@/components/markdown";
 import { ReadingProgress } from "@/components/reading-progress";
-import { CmsImage } from "@/components/cms-image";
+import { StrapiImage } from "@/components/strapi-image";
 import { TableOfContents } from "@/components/table-of-contents";
-import { getAdjacentPosts, getAllPostSlugs, getPostBySlug } from "@/lib/ghost";
+import { getAdjacentPosts, getAllPostSlugs, getPostBySlug } from "@/lib/strapi";
+import { readingTime } from "@/lib/reading-time";
 import { extractToc } from "@/lib/toc";
 import { formatDate } from "@/lib/utils";
 
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       title: post.title,
       description: post.description ?? undefined,
-      publishedTime: post.date,
+      publishedTime: post.published_date ?? post.publishedAt,
       modifiedTime: post.updatedAt,
     },
   };
@@ -44,9 +45,9 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound();
 
   const { older, newer } = await getAdjacentPosts(post);
-  const toc = extractToc(post.html);
-  const date = post.date;
-  const heroImage = post.cover;
+  const toc = extractToc(post.content);
+  const date = post.published_date ?? post.publishedAt;
+  const heroImage = post.postHero ?? post.cover;
 
   return (
     <>
@@ -55,7 +56,7 @@ export default async function PostPage({ params }: Props) {
       <header className="relative isolate overflow-hidden border-b">
         {heroImage ? (
           <>
-            <CmsImage image={heroImage} fill priority sizes="100vw" className="-z-20 object-cover" />
+            <StrapiImage image={heroImage} fill priority sizes="100vw" className="-z-20 object-cover" />
             <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/85 to-background/40" />
           </>
         ) : (
@@ -88,7 +89,7 @@ export default async function PostPage({ params }: Props) {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ClockIcon className="size-4" />
-                {post.readingTime} min read
+                {readingTime(post.content)} min read
               </span>
             </div>
           </FadeIn>
@@ -97,7 +98,7 @@ export default async function PostPage({ params }: Props) {
 
       <Container className="grid max-w-6xl gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_14rem]">
         <article className="mx-auto w-full max-w-3xl min-w-0">
-          {post.html && <HtmlContent html={post.html} />}
+          {post.content && <Markdown>{post.content}</Markdown>}
         </article>
         {toc.length > 1 && (
           <aside className="hidden lg:block">

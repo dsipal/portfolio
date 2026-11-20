@@ -1,4 +1,4 @@
-import { getPostBySlug } from "@/lib/ghost";
+import { getPostBySlug } from "@/lib/strapi";
 import { getSiteInfo } from "@/lib/site";
 import { ogImage, ogSize } from "@/lib/og";
 

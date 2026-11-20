@@ -1,12 +1,15 @@
-# Flat node_modules: next.config.ts traces the standalone output from the
-# workspace root and the Dockerfiles copy it as is
+# Strapi's admin build expects a flat node_modules (as npm/yarn produce)
 nodeLinker: hoisted
 
 packages:
   - apps/web
+  - apps/cms
+  - apps/cms/src/plugins/*
 
-# Patched versions for vulnerable transitive dependencies. Each override only
-# applies below the fixed version, and only for patch/minor bumps.
+# Patched versions for vulnerable transitive dependencies (mostly pinned
+# inside Strapi's packages). Each override only applies below the fixed
+# version, and only for patch/minor bumps; major jumps (nodemailer,
+# stream-json) are left to upstream Strapi releases.
 overrides:
   axios@<1.20.0: ^1.20.0
   brace-expansion@<1.1.12: ^1.1.12

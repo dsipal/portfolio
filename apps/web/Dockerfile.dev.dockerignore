@@ -5,3 +5,5 @@
 !pnpm-lock.yaml
 !pnpm-workspace.yaml
 !apps/web/package.json
+!apps/cms/package.json
+!apps/cms/src/plugins/fontawesome-strapi/package.json

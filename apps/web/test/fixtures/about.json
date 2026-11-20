@@ -1,0 +1,73 @@
+{
+  "id": 1,
+  "documentId": "about",
+  "header": "Engineer who likes shipping small, sharp tools.",
+  "body": "I build things for the web.\n\nSecond paragraph.",
+  "image": null,
+  "github": "https://github.com/example",
+  "linkedIn": "https://linkedin.com/in/example",
+  "resumeUrl": "https://example.com/resume.pdf",
+  "resumeLabel": "Résumé",
+  "resumeFile": null,
+  "coverLetterUrl": null,
+  "coverLetterLabel": "Cover letter",
+  "coverLetterFile": {
+    "id": 50,
+    "url": "/uploads/cover_letter.pdf",
+    "alternativeText": null,
+    "width": null,
+    "height": null,
+    "formats": null
+  },
+  "eyebrow": "About me",
+  "nowHeading": "Now",
+  "currentlyWorkingOn": "This portfolio",
+  "skillsHeading": "What I do",
+  "skills": [
+    {
+      "id": 1,
+      "name": "Web applications",
+      "description": "Server-rendered React front ends.",
+      "icon": "fa-solid code"
+    },
+    {
+      "id": 2,
+      "name": "Infrastructure",
+      "description": "Containers and **CI**.",
+      "icon": "fa-solid server"
+    },
+    {
+      "id": 3,
+      "name": "Writing",
+      "description": null,
+      "icon": "fa-solid not-a-real-icon"
+    }
+  ],
+  "toolboxHeading": "Toolbox",
+  "tech": [
+    {
+      "id": 1,
+      "name": "TypeScript",
+      "link": "https://www.typescriptlang.org",
+      "icon": "fa-brands js"
+    },
+    {
+      "id": 2,
+      "name": "Docker",
+      "link": null,
+      "icon": "fa-brands docker"
+    },
+    {
+      "id": 3,
+      "name": "Postgres",
+      "link": "not a url",
+      "icon": null
+    }
+  ],
+  "currentPosition": {
+    "companyTitle": "Acme",
+    "positionTitle": "Software Engineer",
+    "since": "2024-03-01",
+    "companyLink": "https://example.com"
+  }
+}

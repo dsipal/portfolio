@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostListing } from "@/components/post-listing";
-import { getCategories, getCategoryBySlug } from "@/lib/ghost";
+import { getCategories, getCategoryBySlug } from "@/lib/strapi";
 
 export const revalidate = 60;
 

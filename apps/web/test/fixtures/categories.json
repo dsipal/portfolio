@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "documentId": "cat-eng",
+    "title": "engineering",
+    "slug": "engineering",
+    "description": "Notes on building software."
+  },
+  {
+    "id": 2,
+    "documentId": "cat-lab",
+    "title": "homelab",
+    "slug": "homelab",
+    "description": "Self-hosting and infrastructure."
+  }
+]
