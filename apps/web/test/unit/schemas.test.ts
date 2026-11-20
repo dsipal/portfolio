@@ -135,9 +135,15 @@ describe("homepage", () => {
   it("defaults the greeting and hides a blank subheading", () => {
     expect(homepage.parse({ id: 1, documentId: "h", heroSubheading: "   " })).toMatchObject({
       heroGreeting: "Hi, I'm",
+      heroName: null,
       heroSubheading: null,
       availability: null,
     });
+  });
+
+  it("trims the hero name and treats a blank one as unset", () => {
+    expect(homepage.parse({ id: 1, documentId: "h", heroName: " Devin " }).heroName).toBe("Devin");
+    expect(homepage.parse({ id: 1, documentId: "h", heroName: "  " }).heroName).toBeNull();
   });
 
   it("trims availability", () => {

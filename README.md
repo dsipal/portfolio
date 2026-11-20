@@ -12,7 +12,7 @@ A pnpm workspace:
 
 ```bash
 cp .env.example .env               # fill in the Strapi secrets
-docker compose -f docker-compose.dev.yml up
+pnpm docker:dev up
 ```
 
 The site runs on <http://localhost:3000> and the Strapi admin on <http://localhost:1337/admin>. Create an API token in Strapi (Settings → API Tokens), put it in `.env` as `STRAPI_API_TOKEN` and restart.

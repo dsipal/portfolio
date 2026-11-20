@@ -28,7 +28,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero
-        name={name}
+        name={homepage?.heroName ?? name}
         greeting={homepage?.heroGreeting ?? "Hi, I'm"}
         subheading={homepage?.heroSubheading ?? null}
         socials={<SocialLinks about={about} />}

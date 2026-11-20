@@ -48,3 +48,23 @@ export function ogImage({
     ogSize,
   );
 }
+
+/** An uploaded image scaled to fill the Open Graph card; null when it can't be fetched */
+export async function ogShareImage(url: string) {
+  try {
+    const response = await fetch(url, { next: { revalidate: 3600 } });
+    const type = response.headers.get("content-type") ?? "";
+    if (!response.ok || !type.startsWith("image/")) throw new Error(`${response.status} ${type}`);
+    const data = Buffer.from(await response.arrayBuffer()).toString("base64");
+    return new ImageResponse(
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#09090b" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img src={`data:${type};base64,${data}`} width={ogSize.width} height={ogSize.height} style={{ objectFit: "cover" }} />
+      </div>,
+      ogSize,
+    );
+  } catch (error) {
+    console.error(`[og] share image ${url} failed:`, error);
+    return null;
+  }
+}

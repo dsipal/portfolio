@@ -162,6 +162,8 @@ export const about = z.object({
 export const homepage = z.object({
   ...entry,
   heroGreeting: label("Hi, I'm"),
+  /** Name in the hero heading; the site name is used when empty */
+  heroName: optional(z.string()).transform((value) => value?.trim() || null),
   heroSubheading: optional(z.string()).transform((value) => value?.trim() || null),
   /** "Open to" cell of the front page's Now strip; hidden when empty */
   availability: optional(z.string()).transform((value) => value?.trim() || null),
@@ -173,8 +175,8 @@ export const global = z.object({
   favicon: optional(strapiMedia),
   defaultSeo: optional(
     z.object({
-      MetaTitle: optional(z.string()),
       MetaDescription: optional(z.string()),
+      /** Default Open Graph image; a card is generated when unset */
       shareImage: optional(strapiMedia),
     }),
   ),

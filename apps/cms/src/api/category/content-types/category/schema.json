@@ -18,17 +18,6 @@
     "description": {
       "type": "text"
     },
-    "cover": {
-      "type": "media",
-      "multiple": true,
-      "required": false,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
-    },
     "posts": {
       "type": "relation",
       "relation": "oneToMany",

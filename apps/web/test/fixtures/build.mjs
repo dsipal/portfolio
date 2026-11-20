@@ -165,7 +165,6 @@ const global = {
   SiteName: "devin sipal",
   favicon: null,
   defaultSeo: {
-    MetaTitle: "devin sipal",
     MetaDescription: "Software engineer writing about the web and self-hosting.",
     shareImage: null,
   },
@@ -179,6 +178,7 @@ const homepage = {
   id: 1,
   documentId: "homepage",
   heroGreeting: "Hi, I'm",
+  heroName: "  Devin Sipal ",
   heroSubheading: "I build fast, dependable web apps and the infrastructure under them.",
   availability: "  Freelance & contract work  ",
 };

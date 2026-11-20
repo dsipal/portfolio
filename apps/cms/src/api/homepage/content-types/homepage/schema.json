@@ -16,6 +16,9 @@
       "type": "string",
       "default": "Hi, I'm"
     },
+    "heroName": {
+      "type": "string"
+    },
     "heroSubheading": {
       "type": "text"
     },
