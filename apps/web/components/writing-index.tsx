@@ -49,7 +49,7 @@ export function WritingIndex({ posts }: { posts: PostSummary[] }) {
       <ol className="border-t">
         <AnimatePresence initial={false} mode="popLayout">
           {visible.map((post) => {
-            const date = post.date;
+            const date = post.published_date ?? post.publishedAt;
             return (
               <motion.li
                 key={post.id}

@@ -7,12 +7,13 @@
   },
   "scripts": {
     "dev:web": "pnpm --filter web dev",
+    "dev:cms": "pnpm --filter cms dev",
     "build": "pnpm -r build",
     "lint": "pnpm --filter web lint",
     "typecheck": "pnpm --filter web typecheck",
     "test": "pnpm --filter web test",
     "test:e2e": "pnpm --filter web test:e2e",
-    "mock-ghost": "pnpm --filter web mock-ghost",
+    "mock-strapi": "pnpm --filter web mock-strapi",
     "format": "prettier --write \"apps/web/{app,components,lib,test,e2e}/**/*.{ts,tsx,css}\"",
     "docker:dev": "node scripts/compose-dev.mjs"
   },

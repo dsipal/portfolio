@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Personal portfolio website, a **pnpm workspace** with one app:
+Personal portfolio website, a **pnpm workspace** with two apps:
 - **`apps/web`** — Next.js 16 frontend (App Router, TypeScript), deployed as a Docker container
+- **`apps/cms`** — Strapi 5 CMS backend, the sole data source for the frontend (plus its vendored `fontawesome-strapi` plugin under `src/plugins/`)
 
-The CMS is a self-hosted **Ghost 6** (official `ghost:6-alpine` image, MySQL 8 in production), used headless: all content (posts, categories, projects, about page, homepage copy, site settings) lives in Ghost and is fetched on the server via the Content API. Ghost's own theme front end is unused. There is one lockfile (`pnpm-lock.yaml`) at the root; `pnpm-workspace.yaml` sets `nodeLinker: hoisted` (a flat `node_modules`, which the standalone output tracing and Dockerfiles assume).
+All content (posts, categories, projects, about page, global site settings) lives in Strapi and is fetched on the server via the REST API. There is one lockfile (`pnpm-lock.yaml`) at the root; `pnpm-workspace.yaml` sets `nodeLinker: hoisted` because Strapi's admin build expects a flat `node_modules`.
 
 ## Commands
 
@@ -15,37 +16,38 @@ Run from the repo root (pnpm 10 via corepack: `corepack enable`).
 
 ```bash
 pnpm install                 # all workspaces
-pnpm dev:web                 # Next.js dev server on :3000 (needs a running Ghost)
-pnpm build                   # build the web app
+pnpm dev:web                 # Next.js dev server on :3000
+pnpm dev:cms                 # Strapi with auto-reload on :1337
+pnpm build                   # build both apps
 pnpm lint | pnpm typecheck   # web: ESLint, tsc --noEmit
 pnpm test                    # web: Vitest unit tests (apps/web/test/unit)
 pnpm test:e2e                # web: Playwright smoke tests (see Testing)
-pnpm --filter web <script>
+pnpm --filter <web|cms> <script>
 pnpm docker:dev <args>      # docker compose -f docker-compose.dev.yml <args> (see Docker)
 ```
 
 ### Docker (full stack)
 ```bash
-# Development — Ghost (SQLite, development mode) on :2368 and the web app with hot-reload on :3000
+# Development — mounts each app's source for hot-reload, exposes :3000 and :1337
 pnpm docker:dev up          # wraps: docker compose -f docker-compose.dev.yml up
 
 # Production — requires Traefik reverse proxy and populated .env
 docker compose up
 ```
 
-`apps/web/Dockerfile` builds with the **repo root as context** (`docker build -f apps/web/Dockerfile .`) so it can use the shared lockfile. Its allow-list `Dockerfile.dockerignore` limits the context to the workspace manifests and the app; the dev image (`Dockerfile.dev`) has a `Dockerfile.dev.dockerignore` that sends only the manifests, since source is bind-mounted.
+Both Dockerfiles (`apps/*/Dockerfile`) build with the **repo root as context** (`docker build -f apps/web/Dockerfile .`) so they can use the shared lockfile. Each has an allow-list `Dockerfile.dockerignore` next to it that limits the context to the workspace manifests and that app; the dev images (`Dockerfile.dev`) have a `Dockerfile.dev.dockerignore` that sends only the manifests, since source is bind-mounted.
 
 On Windows, prefer `pnpm docker:dev` (`scripts/compose-dev.mjs`) to calling Compose directly from a shell whose cwd starts with a lower-case `c:` (VS Code, Git Bash): Compose v5 builds through buildx bake, which compares the context (`c:\...`) and Dockerfile (`C:\...`) paths case-sensitively and fails with `additional privileges requested: pass "--allow=fs.read=..."`. The wrapper passes `--project-directory` with an upper-case drive letter.
 
 ## Testing
 
-- **Unit (Vitest)** — `apps/web/test/unit/*.test.ts`: TOC extraction from HTML, pagination, pastel palette, Zod schemas/normalizers and page data, the Ghost data layer (with stubbed `fetch`) and the revalidate route (webhook signatures).
-- **E2E (Playwright)** — `apps/web/e2e/*.spec.ts` against `next start` on :3100 with `apps/web/test/mock-ghost.mjs` serving `test/fixtures/*.json` (Ghost Content API format, including deliberately malformed entries). Build against the mock first:
+- **Unit (Vitest)** — `apps/web/test/unit/*.test.ts`: TOC/slug extraction, reading time, pagination, pastel palette, Zod schemas/normalizers, the Strapi data layer (with stubbed `fetch`) and the revalidate route.
+- **E2E (Playwright)** — `apps/web/e2e/*.spec.ts` against `next start` on :3100 with `apps/web/test/mock-strapi.mjs` serving `test/fixtures/*.json` (Strapi 5 flat format, including deliberately malformed entries). Build against the mock first:
   ```bash
-  cd apps/web && node test/mock-ghost.mjs & GHOST_INTERNAL_URL=http://localhost:1338 GHOST_CONTENT_API_KEY=test pnpm exec next build
+  cd apps/web && node test/mock-strapi.mjs & STRAPI_INTERNAL_URL=http://localhost:1338 pnpm exec next build
   PW_CHANNEL=msedge pnpm test:e2e   # PW_CHANNEL: use an installed browser instead of downloading Chromium
   ```
-  On Windows run Playwright from a shell whose cwd has an upper-case drive letter (`C:\...`); with `c:\...` it loads twice and reports "did not expect test() to be called here".
+  On Windows run Playwright from a shell whose cwd has an upper-case drive letter (`C:...`); with `c:...` it loads twice and reports "did not expect test() to be called here".
 - Fixtures are generated by `node test/fixtures/build.mjs`; edit that, not the JSON.
 
 ## Environment Variables
@@ -54,32 +56,32 @@ Copy `.env.example` to `.env`. Required variables:
 
 | Variable | Where used | Notes |
 |---|---|---|
-| `GHOST_CONTENT_API_KEY` | Next.js runtime + build | Content API key of a custom integration (Ghost Admin → Settings → Integrations). **Required at runtime** — ISR regenerates pages on the server |
-| `GHOST_URL` | Next.js server + build | Ghost's public URL (its `url` config). Site-relative file paths resolve against it; at build time it is also the URL pages are prerendered from. Falls back to `http://localhost:2368` |
-| `GHOST_INTERNAL_URL` | Next.js server | Docker internal URL (`http://ghost:2368`) for API calls and next/image; media URLs on `GHOST_URL` are rewritten to it. Falls back to `GHOST_URL` |
+| `STRAPI_API_TOKEN` | Next.js runtime + build | Create in Strapi Admin → Settings → API Tokens. Needs `find`/`findOne` on post, category, project, about, global, homepage. **Required at runtime** — ISR regenerates pages on the server |
+| `STRAPI_INTERNAL_URL` | Next.js server | Docker internal URL (`http://strapi:1337`); falls back to `http://localhost:1337` |
+| `NEXT_PUBLIC_STRAPI_API_URL` | Next.js | Public Strapi URL, used for relative media URLs in metadata. Baked in at build time |
 | `NEXT_PUBLIC_GA_TRACKING_ID` | Next.js client-side | Baked in at build time; GA is omitted when unset |
 | `SITE_URL` | Next.js server | Canonical site URL for metadata, sitemap, RSS. Defaults to `https://devinsipal.com` |
-| `REVALIDATE_SECRET` | Next.js server | Secret of the Ghost webhooks that call `/api/revalidate` (verifies `X-Ghost-Signature`) |
-| `GHOST_DOMAIN`, `MYSQL_*` | Compose | Ghost's domain and its MySQL database |
-| `GHOST_SMTP_*`, `GHOST_MAIL_FROM` | Ghost | Staff invites and new-device sign-in codes. Without SMTP set `GHOST_STAFF_DEVICE_VERIFICATION=false` |
+| `REVALIDATE_SECRET` | Next.js server | Bearer secret for `/api/revalidate` (Strapi webhook) |
+| `APP_KEYS`, `ADMIN_JWT_SECRET`, etc. | Strapi | Generate with `openssl rand -base64 32` |
+| `CLOUDINARY_*` | Strapi production | Media uploads; not needed in dev |
 
-**Important:** `NEXT_PUBLIC_*` vars and the build-time `GHOST_URL` must be set at Docker build time (passed as `ARG`), not just at runtime. In production they come from GitHub Actions repository variables.
+**Important:** `NEXT_PUBLIC_*` vars must be set at Docker build time (passed as `ARG`), not just at runtime. In production they come from GitHub Actions repository variables.
 
 ## Architecture
 
 ### Data Flow
 
 ```
-Ghost (MySQL) → Content API → lib/ghost.ts (server-only) → Server Components in app/
+Strapi CMS (PostgreSQL) → REST API → lib/strapi.ts (server-only) → Server Components in app/
 ```
 
 Paths below are relative to `apps/web`.
 
-- `lib/ghost.ts` — All Ghost communication; typed query helpers (`getPosts`, `getPostBySlug`, `getProjects`, …) over `/ghost/api/content/...?key=…` with `Accept-Version: v6.0` and `X-Forwarded-Proto: https` (Ghost redirects plain-http requests when its `url` is https). Lists longer than a page are fetched page by page (`fetchAll`, 100 per request). Every `fetch` is tagged (`TAGS`) and revalidates every 60s. A failed request returns an empty fallback **at build time** (so the image builds without Ghost) but **throws at runtime**, so ISR keeps serving the last good page. Errors are logged as `[ghost] GET /posts/ failed: <status>`.
-- `lib/schemas.ts` — Zod schemas for every Ghost response, transformed into the shapes components use (`Post { date, html, cover: {url, alt}, category, readingTime }`, `Project`, `About`, …); the TypeScript types are inferred from them. `lib/ghost.ts` parses lists **per entry** (an invalid entry is dropped and logged as `[ghost] invalid <type> "<slug>" skipped: <field>: <issue>`) and pages/settings to `null` on failure. Hand-entered fields are normalized: URLs are trimmed and invalid ones become `null`, blank names are dropped, labels fall back to defaults.
-- `lib/media.ts` — `getCmsMedia()`: URLs on `GHOST_URL` are rewritten to `GHOST_INTERNAL_URL` (for next/image) unless `{ public: true }` (metadata, links); site-relative paths get `GHOST_URL`; other hosts pass through. `components/cms-image.tsx` wraps next/image (Ghost reports no dimensions, so use `fill` in a sized box).
-- `lib/site.ts` — `SITE_URL` and `getSiteInfo()` (site name/description from Ghost's settings).
-- `lib/webhook.ts` + `app/api/revalidate/route.ts` — Ghost webhook target. Verifies `X-Ghost-Signature` (`sha256=<hmac of body+timestamp>, t=<ms>`, keyed with `REVALIDATE_SECRET`, max 5 minutes old) and expires cache tags by payload key: `post` → posts, `page` → projects/about/homepage, `tag` → categories/posts, anything else (`site.changed`) → all. Set up the webhooks in the same custom integration (post, page, tag and site-changed events → `https://<site>/api/revalidate/`).
+- `lib/strapi.ts` — All Strapi communication; typed query helpers (`getPosts`, `getPostBySlug`, `getProjects`, …). Strapi 5 returns **flat** entries (`post.title`, `post.cover.url`) — there is no `attributes` wrapper. Every `fetch` is tagged (`TAGS`) and revalidates every 60s. A failed request returns an empty fallback **at build time** (so the image builds without Strapi) but **throws at runtime**, so ISR keeps serving the last good page. Errors are logged as `[strapi] GET /api/... failed: <status>`.
+- `lib/schemas.ts` — Zod schemas for every Strapi response; the TypeScript types are `z.infer`red from them. `lib/strapi.ts` parses lists **per entry** (an invalid entry is dropped and logged as `[strapi] invalid <type> "<slug>" skipped: <field>: <issue>`) and single types to `null` on failure. Hand-entered fields are normalized: URLs are trimmed and invalid ones become `null`; project tech accepts several shapes (see below).
+- `lib/media.ts` — `getStrapiMedia()`: absolute URLs (Cloudinary) pass through; relative paths get the internal Strapi URL (for next/image) or, with `{ public: true }`, the public URL (for metadata).
+- `lib/site.ts` — `SITE_URL` and `getSiteInfo()` (site name/description from the `global` single type).
+- `app/api/revalidate/route.ts` — Strapi webhook target; expires cache tags by model so edits appear immediately.
 
 ### Rendering
 
@@ -97,18 +99,14 @@ Paths below are relative to `apps/web`.
 
 `next.config.ts` keeps `trailingSlash: true` and `output: "standalone"`, with `outputFileTracingRoot` at the workspace root, so the standalone server is at `.next/standalone/apps/web/server.js`.
 
-### Ghost Content Model
+### Strapi Content Types
 
-Ghost has fixed types and no custom fields, so structured content uses **page data**: a JSON object in a page's *Settings → Code injection → Site header* (`codeinjection_head`), wrapped in `<script type="application/json">…</script>` (a bare object also works). `readPageData()` in `lib/schemas.ts` extracts it. Malformed JSON is logged as `[ghost] invalid page data "<slug>" ignored` and treated as `{}` (the page renders with defaults); well-formed JSON with wrong types fails the page like any invalid field.
-
-- **Posts** — Ghost posts. `custom_excerpt` → description, `html` → body (rendered by `HtmlContent`), `published_at` → date, `feature_image`/`feature_image_alt` → cover (also the post hero), `reading_time`, `primary_tag` → category (internal tags never count)
-- **Categories** — public Ghost tags (`/tags/?filter=visibility:public`)
-- **Projects** — Ghost **pages tagged `#project`** (internal tag, slug `hash-project`): title, slug, `custom_excerpt` (falls back to Ghost's excerpt) → summary, `feature_image` → image, the **Featured** toggle → featured. Page data: `{ "link", "repoUrl", "tech": ["Next.js", …], "order": 0 }`. Sorted by `order`, then title
-- **About** — page with slug **`about`**: title → headline, content → bio, feature image → portrait. Page data: `eyebrow`, `github`, `linkedIn`, `resume` and `coverLetter` (a URL string or `{ "url", "label" }`; upload the file with a Ghost file card and paste its `/content/files/...` URL — site-relative paths get `GHOST_URL`; exposed as `about.resume` / `about.coverLetter` `{ href, label } | null`, hidden when unset), `currentPosition` (`companyTitle`, `positionTitle`, `since`, `companyLink`), `nowHeading` + `currentlyWorkingOn`, `skillsHeading` + `skills` (`[{ name, description (Markdown), icon }]`), `toolboxHeading` + `tech` (`[{ name, link, icon }]`). Labels fall back to defaults when blank. Icons are Font Awesome names (`"fa-solid code"`) rendered server-side through `components/fa-icon.tsx` (react-icons/fa6); unknown icons render nothing
-- **Homepage** — page with slug **`home`**; only its page data is used: `heroGreeting` (default "Hi, I'm"), `heroSubheading` (hidden when empty), `availability` (Now strip "Open to" cell, hidden when empty)
-- **Global** — Ghost site settings: title → site name, meta description (else description), icon → favicon, og image
-
-The `about` and `home` pages also exist on Ghost's own (unused) theme front end; keep the Ghost site private or ignore it. `scripts/migrate-strapi-to-ghost.mjs` is a one-off importer from the previous Strapi CMS (usage in its header; delete it once production is migrated).
+- **`post`** (collection) — `title`, `description`, `slug`, `content` (Markdown), `published_date`, `cover`, `postHero` (media), `category` (relation)
+- **`category`** (collection) — `title`, `slug`, `description`, has `posts` inverse relation
+- **`project`** (collection) — `title`, `slug`, `summary`, `description`, `image`, `techStack` (repeatable `project.tech-item` component, `name`; exposed to components as `project.tech: string[]`), `link` (live URL), `repoUrl`, `featured`, `order`. The old `tech` JSON field was migrated into `techStack` by `apps/cms/database/migrations/2026.11.18T00.00.00.project-tech-to-techstack.js` (Strapi runs user migrations before the schema sync drops the column)
+- **`about`** (single type) — every string on `/about/` comes from here: `eyebrow`, `header`, `body` (Markdown), `image` (alt from its alternative text), `github`, `linkedIn`, résumé (`resumeFile` upload or `resumeUrl`, `resumeLabel`) and cover letter (`coverLetterFile` or `coverLetterUrl`, `coverLetterLabel`) — the upload wins over the URL, the schema exposes them as `about.resume` / `about.coverLetter` (`{ href, label } | null`) and the link is hidden when neither is set, `currentPosition` (component), `nowHeading` + `currentlyWorkingOn`, `skillsHeading` + `skills` (repeatable: `name`, `description`, `icon`), `toolboxHeading` + `tech` (repeatable: `name`, `link`, `icon`). Labels fall back to their schema defaults when blank. Icons come from the vendored fontawesome field (`"fa-solid code"`) and render server-side through `components/fa-icon.tsx` (react-icons/fa6); unknown icons render nothing
+- **`global`** (single type) — `SiteName`, `favicon`, `defaultSeo` (component: `MetaDescription`, `shareImage` — the default Open Graph image, rendered by `app/opengraph-image.tsx`; a card is generated when unset or unreachable)
+- **`homepage`** (single type) — hero copy: `heroGreeting` (default "Hi, I'm"), `heroName` (the name in the heading; falls back to `SiteName`), `heroSubheading` (hidden when empty), `availability` (Now strip "Open to" cell, hidden when empty). Fetched by `getHomepage()`, tag `homepage`
 
 ### UI
 
@@ -116,12 +114,12 @@ The `about` and `home` pages also exist on Ghost's own (unused) theme front end;
 - Dark mode: `next-themes` with the `class` strategy.
 - Animation: `motion` (`motion/react`). Reusable `FadeIn` / `Stagger` / `StaggerItem` in `components/motion.tsx`; `MotionConfig reducedMotion="user"` in `components/providers.tsx`. `app/template.tsx` fades pages in (opacity only — transforms there would break fixed/sticky elements).
 - Fonts: Geist Sans/Mono via `next/font`.
-- `components/markdown.tsx` renders on the server: `HtmlContent` turns Ghost HTML into React (rehype-parse → rehype-slug → rehype-autolink-headings → rehype-pretty-code with Shiki dual light/dark themes → hast-util-to-jsx-runtime; Ghost code cards' `language-*` classes pick the grammar), and `Markdown` (react-markdown + remark-gfm + rehype-raw and the same plugins) renders the short Markdown fields in page data. `lib/toc.ts` extracts h2/h3 by running the same rehype-slug over the HTML, so ids match (Ghost's own heading ids are kept).
+- Markdown (`components/markdown.tsx`) renders on the server with `MarkdownAsync`: remark-gfm, rehype-raw, rehype-slug, rehype-autolink-headings and rehype-pretty-code (Shiki, dual light/dark themes). `lib/toc.ts` extracts h2/h3 with the same github-slugger ids.
 - `components/cubes.tsx` is three.js, loaded client-only via `components/cubes-lazy.tsx`; it pauses off-screen and respects reduced motion.
 - ⌘K search (`components/search-dialog.tsx`) filters the server-provided post index on the client.
 
 ## Deployment
 
-`.github/workflows/build.yml` runs on every push to `main`/`dev` and on PRs. The `verify` job runs lint, the type check, unit tests, a build against the mock Ghost and the Playwright tests. The `build` job then builds the `portfolio-web` image; **only pushes to `main` publish it** to GHCR (`:latest` and `:<sha>`), so a commit that fails verification never deploys. Ghost runs from the official `ghost:6-alpine` image (pinned major). Watchtower on the host detects new images and recreates the `portfolio` and `ghost` containers (opted in via `com.centurylinklabs.watchtower.enable=true`; `mysql` is opted out). There is no deploy step in CI. The production stack (`docker-compose.yml`) is pasted into Portainer as a web-editor stack, only references images (no `build:`) and sits behind a Traefik reverse proxy for TLS termination. Back up the `mysql_data` and `ghost_content` (uploads) volumes.
+`.github/workflows/build.yml` runs on every push to `main`/`dev` and on PRs. The `verify` job runs lint, the type check, unit tests, a build against the mock Strapi and the Playwright tests. The `build` job then builds the `portfolio-web` and `portfolio-strapi` images; **only pushes to `main` publish them** to GHCR (`:latest` and `:<sha>`), so a commit that fails verification never deploys. Watchtower on the host detects the new `:latest` images and recreates the `strapi` and `portfolio` containers (opted in via `com.centurylinklabs.watchtower.enable=true`; `postgres` is opted out). There is no deploy step in CI. The production stack (`docker-compose.yml`) is pasted into Portainer as a web-editor stack, only references images (no `build:`) and sits behind a Traefik reverse proxy for TLS termination.
 
-GitHub repo config the workflow needs: variables `GHOST_URL` (public Ghost URL, for prerendering at build), `NEXT_PUBLIC_GA_TRACKING_ID`; secret `GHOST_CONTENT_API_KEY` (optional, for prerendering real content at build). The Portainer stack env needs `GHOST_DOMAIN`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `GHOST_CONTENT_API_KEY` and `REVALIDATE_SECRET` (plus SMTP settings, see `.env.example`).
+GitHub repo config the workflow needs: variables `NEXT_PUBLIC_STRAPI_API_URL`, `NEXT_PUBLIC_GA_TRACKING_ID`; secrets `STRAPI_API_TOKEN` (optional, for prerendering real content at build). The Portainer stack env needs `STRAPI_API_TOKEN` and `REVALIDATE_SECRET` for the `portfolio` container at runtime.

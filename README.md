@@ -1,4 +1,4 @@
-My personal portfolio website created using [Next.js](https://nextjs.org/) and [Ghost](https://ghost.org/) as a headless CMS.
+My personal portfolio website created using [Next.js](https://nextjs.org/) and [Strapi CMS](https://strapi.io/).
 You can view this project at my website: [devinsipal.com](https://devinsipal.com)
 
 ## Layout
@@ -6,21 +6,19 @@ You can view this project at my website: [devinsipal.com](https://devinsipal.com
 A pnpm workspace:
 
 - `apps/web` — the Next.js frontend
-- Ghost runs from the official `ghost` Docker image and provides all of the content
+- `apps/cms` — the Strapi CMS that provides all of the content
 
 ## Running it locally
 
 ```bash
-cp .env.example .env
-pnpm docker:dev up                 # docker compose -f docker-compose.dev.yml up
+cp .env.example .env               # fill in the Strapi secrets
+pnpm docker:dev up
 ```
 
-The site runs on <http://localhost:3000> and Ghost on <http://localhost:2368/ghost>. Set up the Ghost admin account, add a custom integration (Settings → Integrations), put its Content API key in `.env` as `GHOST_CONTENT_API_KEY` and restart.
+The site runs on <http://localhost:3000> and the Strapi admin on <http://localhost:1337/admin>. Create an API token in Strapi (Settings → API Tokens), put it in `.env` as `STRAPI_API_TOKEN` and restart.
 
-Without Docker: run Ghost yourself, then `corepack enable && pnpm install` and `pnpm dev:web` with `GHOST_URL` and `GHOST_CONTENT_API_KEY` set.
-
-Moving content over from the old Strapi CMS: `scripts/migrate-strapi-to-ghost.mjs` (usage in its header).
+Without Docker: `corepack enable && pnpm install`, then `pnpm dev:cms` and `pnpm dev:web`.
 
 ## Deploying
 
-Pushes to `main` that pass CI publish the web image to GHCR; the production `docker-compose.yml` runs it with Ghost and MySQL behind Traefik. See `CLAUDE.md` for details.
+Pushes to `main` that pass CI publish both images to GHCR; the production `docker-compose.yml` runs them behind Traefik. See `CLAUDE.md` for details.

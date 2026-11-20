@@ -1,0 +1,10 @@
+{
+  "id": 1,
+  "documentId": "global",
+  "SiteName": "devin sipal",
+  "favicon": null,
+  "defaultSeo": {
+    "MetaDescription": "Software engineer writing about the web and self-hosting.",
+    "shareImage": null
+  }
+}

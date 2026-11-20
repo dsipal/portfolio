@@ -8,7 +8,7 @@ import { NowStrip } from "@/components/now-strip";
 import { ProjectSpotlight } from "@/components/project-spotlight";
 import { SocialLinks } from "@/components/social-links";
 import { WritingIndex } from "@/components/writing-index";
-import { getAbout, getHomepage, getPosts, getProjects } from "@/lib/ghost";
+import { getAbout, getHomepage, getPosts, getProjects } from "@/lib/strapi";
 import { getSiteInfo } from "@/lib/site";
 
 export const revalidate = 60;
@@ -28,7 +28,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero
-        name={name}
+        name={homepage?.heroName ?? name}
         greeting={homepage?.heroGreeting ?? "Hi, I'm"}
         subheading={homepage?.heroSubheading ?? null}
         socials={<SocialLinks about={about} />}

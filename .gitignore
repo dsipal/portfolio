@@ -15,6 +15,15 @@ coverage/
 test-results/
 playwright-report/
 
+# strapi (apps/cms)
+apps/cms/.tmp
+apps/cms/.cache
+apps/cms/dist
+apps/cms/build
+apps/cms/exports
+apps/cms/public/uploads/*
+!apps/cms/public/uploads/.gitkeep
+
 # misc
 .DS_Store
 *.pem

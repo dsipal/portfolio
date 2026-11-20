@@ -1,10 +1,9 @@
 name: Build images
 
 # Verifies every push and PR (lint, types, unit tests, e2e against mock
-# Ghost content), then builds the web image. Only pushes to main publish it to
-# GHCR; Watchtower on the host then picks up the new :latest tag and redeploys
-# the container. Elsewhere the image build just has to succeed. Ghost itself
-# runs from the official image (docker-compose.yml).
+# Strapi content), then builds both images. Only pushes to main publish the
+# images to GHCR; Watchtower on the host then picks up the new :latest tags and
+# redeploys the containers. Elsewhere the image build just has to succeed.
 
 on:
   push:
@@ -28,8 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
-      GHOST_INTERNAL_URL: http://localhost:1338
-      GHOST_CONTENT_API_KEY: test
+      STRAPI_INTERNAL_URL: http://localhost:1338
     steps:
       - uses: actions/checkout@v4
 
@@ -51,10 +49,10 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Build against mock Ghost
+      - name: Build against mock Strapi
         working-directory: apps/web
         run: |
-          node test/mock-ghost.mjs 1338 &
+          node test/mock-strapi.mjs 1338 &
           pnpm exec next build
 
       - name: Install Playwright browser
@@ -76,7 +74,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      IMAGE: portfolio-web
+    strategy:
+      matrix:
+        include:
+          - image: portfolio-strapi
+            app: cms
+          - image: portfolio-web
+            app: web
     steps:
       - uses: actions/checkout@v4
 
@@ -91,17 +95,19 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          # Builds from the workspace root (one pnpm lockfile)
+          # Both images build from the workspace root (one pnpm lockfile)
           context: .
-          file: apps/web/Dockerfile
+          file: apps/${{ matrix.app }}/Dockerfile
           push: ${{ env.PUBLISH == 'true' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.image }}:${{ github.sha }}
+          # Only used by portfolio-web; ignored by the Strapi Dockerfile
           build-args: |
-            GHOST_URL=${{ vars.GHOST_URL }}
+            NEXT_PUBLIC_STRAPI_API_URL=${{ vars.NEXT_PUBLIC_STRAPI_API_URL }}
             NEXT_PUBLIC_GA_TRACKING_ID=${{ vars.NEXT_PUBLIC_GA_TRACKING_ID }}
+            STRAPI_BUILD_URL=${{ vars.NEXT_PUBLIC_STRAPI_API_URL }}
           secrets: |
-            ghost_content_api_key=${{ secrets.GHOST_CONTENT_API_KEY }}
-          cache-from: type=gha,scope=${{ env.IMAGE }}
-          cache-to: ${{ env.PUBLISH == 'true' && format('type=gha,mode=max,scope={0}', env.IMAGE) || '' }}
+            strapi_api_token=${{ secrets.STRAPI_API_TOKEN }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: ${{ env.PUBLISH == 'true' && format('type=gha,mode=max,scope={0}', matrix.image) || '' }}

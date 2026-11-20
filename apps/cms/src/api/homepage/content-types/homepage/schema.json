@@ -1,0 +1,29 @@
+{
+  "kind": "singleType",
+  "collectionName": "homepages",
+  "info": {
+    "singularName": "homepage",
+    "pluralName": "homepages",
+    "displayName": "Homepage",
+    "description": "Front page copy"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heroGreeting": {
+      "type": "string",
+      "default": "Hi, I'm"
+    },
+    "heroName": {
+      "type": "string"
+    },
+    "heroSubheading": {
+      "type": "text"
+    },
+    "availability": {
+      "type": "string"
+    }
+  }
+}

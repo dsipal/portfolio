@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Container, PageHeader } from "@/components/container";
 import { Stagger, StaggerItem } from "@/components/motion";
 import { ProjectCard } from "@/components/project-card";
-import { getProjects } from "@/lib/ghost";
+import { getProjects } from "@/lib/strapi";
 
 export const revalidate = 60;
 
